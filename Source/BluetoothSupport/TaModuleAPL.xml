@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    ! Created By Taha HICHRI
+    Copyright (c) Taha HICHRI <hishri.taha@gmail.com> - 2018
+-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+  <init>
+    <log text="Bluetooth Support inject"/>
+  </init>
+
+  <proguardAdditions>
+    <insert>
+     
+    </insert>
+  </proguardAdditions>
+
+  <prebuildCopies>
+   
+  </prebuildCopies>
+
+  <gameActivityImportAdditions>
+    <insert>
+     <!--Inject imports here-->
+import android.content.pm.PackageManager;
+import android.widget.Toast;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Looper;
+import android.os.Handler;
+import android.os.Build;
+import android.bluetooth.BluetoothDevice;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import android.os.ParcelUuid;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanSettings;
+import android.support.annotation.RequiresApi;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothProfile;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
+import android.os.HandlerThread;
+
+
+  
+import android.os.Bundle;
+
+    </insert>
+  </gameActivityImportAdditions>
+
+  <androidManifestUpdates>
+    
+    <!--Permissions here, I will add bluetooth manually-->
+    <!--Needed regardless-->
+    <addPermission android:name="android.permission.BLUETOOTH" />
+    
+    <!--Required solely for BLE, Bluetooth can be used for location, get coarse location-->
+    <addPermission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <addPermission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    <!--Normally the low-energy feature is required, However, I am going to enable some features for devices
+    which do not support BLE, such as manipulating the adapter and getting BL status.-->
+    <addFeature android:name="android.hardware.bluetooth_le" android:required="false" />
+    
+  
+  </androidManifestUpdates>
+  
+  <!--
+  ####################### Activity/App lifecycle callbacks ######################
+  -->
+  <!--
+  # optional additions to GameActivity onCreate in GameActivity.java 
+  # There are a few checks and final value initializations, preferably I will add them here
+  -->
+	<gameActivityOnCreateAdditions>
+     <insert>
+       final BluetoothManager bluetoothManager =
+       (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+       if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.JELLY_BEAN_MR2)
+       {
+       taBluetoothAdapter = bluetoothManager.getAdapter();
+       }
+
+
+       if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP)
+       {
+       scanSettings = new ScanSettings.Builder()
+       .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+
+       // delay scan result report
+       .setReportDelay(1000)
+       .build();
+       
+       discoveredLEResults = new ArrayList&lt;&gt;();  
+       
+       startHandlerThread();
+       }
+     </insert>
+  </gameActivityOnCreateAdditions>
+  
+  
+ 
+   <!-- optional additions to GameActivity onDestroy in GameActivity.java -->
+	 <gameActivityOnDestroyAdditions>
+     <insert>
+       mHandler = null;
+     </insert>
+   </gameActivityOnDestroyAdditions>
+	 	
+	 <!-- optional additions to GameActivity onStart in GameActivity.java -->
+	 <gameActivityOnStartAdditions></gameActivityOnStartAdditions>
+	 	
+	 <!-- optional additions to GameActivity onStop in GameActivity.java -->
+	 <gameActivityOnStopAdditions>
+        <insert>
+   if ( discoveredLEResults!= null )
+       discoveredLEResults.clear();
+        </insert>
+   </gameActivityOnStopAdditions>
+	 	
+	 <!-- optional additions to GameActivity onPause in GameActivity.java -->
+	 <gameActivityOnPauseAdditions>
+     <insert>
+       if ( Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP )
+       if ( isScanning )  stopLEScan();
+     </insert>
+     
+   </gameActivityOnPauseAdditions>
+	  	
+	 <!-- optional additions to GameActivity onResume in GameActivity.java -->
+	 <gameActivityOnResumeAdditions></gameActivityOnResumeAdditions>
+
+  
+    <!--
+    # Methods, inner classes, and other the other additions
+    --> 
+  <gameActivityClassAdditions>
+    <insert>
+      //  variables
+      private BluetoothAdapter taBluetoothAdapter;
+      private BluetoothLeScanner taBluetoothLeScanner;
+      private List&lt;CBluetoothDevice&gt; discoveredLEResults;
+      private ScanSettings scanSettings;
+
+
+      // intial scan for LE devices with, or without filters
+      BtleScanCallback mScanCallback;
+
+      // when user connects to a particular device
+      BluetoothGatt taConnectGattDevice;
+
+      // onCreate inject
+      public static final int REQUEST_ENABLE_BT = 666;
+
+      private boolean isScanning = false;
+      
+      private Handler mHandler;
+      private HandlerThread mHandlerThread = null;
+
+
+
+
+          /**
+     * ################### Available for all bluetooth-enabled devices ############
+     * The plugin allows some basic bluetooth manipulating for non-supported devices.
+     * I HAVE to make this check before any BLE-related work
+     * @return whether LE is supported
+     */
+    public boolean isBluetoothLowEnergySupported()
+    {
+        return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) ;
+    }
+
+    /**
+     * Toggle Bluetooth adapter and status
+     * @return status
+     */
+    public boolean isBluetoothEnabled()
+    {
+        return taBluetoothAdapter.isEnabled();
+    }
+
+
+    /**
+     * Toggle adapter
+     */
+    public void enableBluetooth()
+    {
+        // displays a dialog requesting user permission to enable Bluetooth.
+        if ( taBluetoothAdapter == null || !taBluetoothAdapter.isEnabled() )
+        {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+    }
+
+    public void disableBluetooth()
+    {
+        // displays a dialog requesting user permission to enable Bluetooth.
+        if (taBluetoothAdapter != null &amp;&amp; taBluetoothAdapter.isEnabled())
+            taBluetoothAdapter.disable();
+    }
+
+
+
+    /**
+     * ################ LE supported devices API &gt;= 18 scan update ##############
+     * Devices management
+     */
+
+
+    /**
+     * Scan for ANY LE-enabled device within the Bluetooth covered range.
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void startLEScan (int scanTimeoutMillisecond)
+    {
+        //Toast.makeText(getApplicationContext(),&quot;&quot;+scanTimeoutMillisecond, Toast.LENGTH_SHORT).show();
+       
+        // prevent user from calling scan multiple times
+        if( isScanning() ) stopLEScan();
+        
+        // taBluetoothLeScanner would be null if bluetooth is disabled
+        if ( !isBluetoothEnabled() || !isBluetoothLowEnergySupported() ) return;
+
+        mScanCallback = new BtleScanCallback();
+        taBluetoothLeScanner = taBluetoothAdapter.getBluetoothLeScanner();
+
+        // for this method, list all available devices
+        taBluetoothLeScanner.startScan(new ArrayList&lt;ScanFilter&gt;(),
+                scanSettings,
+                mScanCallback);
+
+
+        isScanning = true;
+
+
+    mHandler.postDelayed(new Runnable() {
+    @Override
+    public void run() {
+        new Thread() {
+            @Override
+            public void run() {
+               stopLEScan();
+            }
+        }.start();
+    }
+    },scanTimeoutMillisecond);
+
+        
+    }
+
+
+    /**
+     * Called to scan for LE devices with a provided Characteristic UUID only
+     * The filtered scan will save unneeded extra treatment especially with
+     * a big number of devices around.
+     * @param uuid of the characteristic needed.
+     * @param scanTimeoutMillisecond For how many milliseconds should I keep scanning?
+     *                               The loop is better be managed BP=side
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void scanByCharacteristic (int scanTimeoutMillisecond, String uuid)
+    {      
+        // prevent user from calling scan multiple times
+        if( isScanning() ) stopLEScan();
+        
+        // taBluetoothLeScanner would be null if bluetooth is disabled
+        if ( !isBluetoothEnabled() || !isBluetoothLowEnergySupported() ) return;
+
+        // We only want to scan for devices advertising our custom service
+        ScanFilter scanFilter = new ScanFilter.Builder()
+                .setServiceUuid(new ParcelUuid(UUID.fromString(uuid)))
+                .build();
+
+
+        mScanCallback = new BtleScanCallback();
+
+        taBluetoothLeScanner = taBluetoothAdapter.getBluetoothLeScanner();
+        taBluetoothLeScanner.startScan(Arrays.asList(scanFilter),
+                scanSettings,
+                mScanCallback);
+        isScanning = true;
+
+
+        mHandler.postDelayed(new Runnable() {
+    @Override
+    public void run() {
+        new Thread() {
+            @Override
+            public void run() {
+               stopLEScan();
+            }
+        }.start();
+    }
+    },scanTimeoutMillisecond);
+       
+      
+    }
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void stopLEScan()
+    {
+        if (isScanning &amp;&amp; taBluetoothAdapter != null &amp;&amp;
+                taBluetoothAdapter.isEnabled() &amp;&amp; taBluetoothLeScanner != null)
+        {
+            taBluetoothLeScanner.stopScan(mScanCallback);
+        }
+
+        mScanCallback = null;
+        isScanning = false;
+    }
+
+    public boolean isScanning()
+    {
+        return isScanning;
+    }
+
+
+
+    /**
+     * Scan Callbacks,
+     */
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private class BtleScanCallback extends ScanCallback
+    {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result)
+        {
+           // delaying results of scan and getting a batch of results instead of a callback hell
+            // this callback will never be called with delay
+        }
+        @Override
+        public void onBatchScanResults(List&lt;ScanResult&gt; results)
+        {
+            // since a device might go offline without notification. no history will be kept
+            if ( results.size() &gt; 0 ) discoveredLEResults.clear();
+            // go through the list of devices.
+            // with filters, I might get only one result. stays valid.
+            for (ScanResult result : results)
+            {
+                addScanResult(result);
+            }
+        }
+        @Override
+        public void onScanFailed(int errorCode)
+        {
+          //  Log.e(&quot;error&quot;, &quot;BLE Scan Failed with code &quot; + errorCode);
+        }
+    }
+
+
+    /**
+     * Connecting to a GATT server
+     * This is called manually from blueprint. the connection requires device&apos;s address
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    public void connectGattDevice(String deviceAddr)
+    {
+        TaGattConnectCallback taGattConnectCallback = new TaGattConnectCallback();
+        BluetoothDevice device = taBluetoothAdapter.getRemoteDevice(deviceAddr);
+        taConnectGattDevice = device.connectGatt(getApplicationContext(), false, taGattConnectCallback);
+    }
+
+
+    /**
+     * ############################### SCAN, CONNECTION CALLBACKS ########################
+     *
+     */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    private class TaGattConnectCallback extends BluetoothGattCallback
+    {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState)
+        {
+            super.onConnectionStateChange(gatt, status, newState);
+            // Log.i(&quot;taha&quot;, &quot;connect gatt: &quot;+status);
+            if (status == BluetoothGatt.GATT_FAILURE)
+            {
+
+                return;
+            } else if (status != BluetoothGatt.GATT_SUCCESS)
+            {
+
+                return;
+            }
+            /*
+            if (newState == BluetoothProfile.STATE_CONNECTED)
+            {
+                Log.i(&quot;taha&quot;, &quot;Connected to GATT client.&quot;);
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED)
+            {
+                Log.i(&quot;taha&quot;, &quot;Disconnected from GATT client&quot;);
+            }
+            */
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status)
+        {
+            super.onServicesDiscovered(gatt, status);
+            // go through the services we found for this device to log their UUID
+            //for (BluetoothGattService service :  gatt.getServices() )
+            //    Log.d(&quot;Taha&quot;, &quot;Device: &quot;+gatt.getDevice().getAddress()+&quot;   |   Service UUID:&quot;+ service.getUuid());
+
+        }
+    }
+
+
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void addScanResult(ScanResult result)
+    {
+
+        if (Build.VERSION.SDK_INT &gt;= 26)
+        {
+            discoveredLEResults.add(new CBluetoothDevice(
+                    result.getDevice().getAddress(),
+                    result.getRssi(),
+                    result.getPeriodicAdvertisingInterval(),
+                    result.getTxPower(),
+                    result.isConnectable()
+            ));
+            return;
+        } else {
+            discoveredLEResults.add(new CBluetoothDevice(
+                    result.getDevice().getAddress(),
+                    result.getRssi()
+            ));
+        }
+
+
+    }
+
+
+    /**
+     * This is really important to adapt returned data (array of results) to C++ compatible list
+     */
+    public String[] getDiscoveredDevices()
+    {
+
+        if ( discoveredLEResults != null )
+        {
+            String[] discoveredLEResultsArr = new String[discoveredLEResults.size()];
+            
+            for (int count = 0; count &lt; discoveredLEResults.size(); count++)
+                discoveredLEResultsArr[count] = discoveredLEResults.get(count).stringify();
+
+            return discoveredLEResultsArr;
+        }
+
+        return new String[]{};
+    }
+
+
+    public void clearDiscoveredDevices()
+    {
+        if ( discoveredLEResults!= null ) discoveredLEResults.clear();
+    }
+
+
+  
+    // this class will help in the passing of Objects via JNI
+    class CBluetoothDevice
+    {
+        String  address;
+        int     rssi;
+        int     periodicAdvertisingInterval = -1;
+        int     txPower = -1;
+        boolean isConnectable = false;
+        long    lastDiscovery;
+
+        CBluetoothDevice(String addr, int rssi, int periodicAdvertisingInterval, int txPower, boolean isConnectable)
+        {
+            this.address = addr;
+            this.rssi = rssi;
+            this.periodicAdvertisingInterval = periodicAdvertisingInterval;
+            this.txPower = txPower;
+            this.isConnectable = isConnectable;
+            lastDiscovery = new Date().getTime();
+        }
+
+        // API &lt; 26
+        CBluetoothDevice(String addr, int rssi)
+        {
+            this.address = addr;
+            this.rssi = rssi;
+            lastDiscovery = new Date().getTime();
+        }
+
+        public String stringify()
+        {
+            return &quot;&quot;+address+&quot;|&quot;+rssi+&quot;|&quot;+periodicAdvertisingInterval+&quot;|&quot;+txPower+&quot;|&quot;+isConnectable+&quot;|&quot;+lastDiscovery;
+        }
+    }
+    
+    
+    public void startHandlerThread()
+    {
+        mHandlerThread = new HandlerThread(&quot;HandlerThread&quot;);
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+    }
+
+
+    </insert>
+  </gameActivityClassAdditions>
+
+
+
+
+</root>
