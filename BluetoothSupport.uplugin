@@ -1,10 +1,10 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.2",
+	"VersionName": "0.9",
 	"FriendlyName": "Bluetooth Support",
 	"Description": "Adds Bluetooth and Bluetooth Low Energy support to your project. Provides full access to Android's Bluetooth SDK from C++ and Blueprint.",
-	"Category": "Mobile, Android",
+	"Category": "Mobile",
 	"CreatedBy": "Taha HICHRI",
 	"CreatedByURL": "https://www.hishri.com/",
 	"DocsURL": "",
