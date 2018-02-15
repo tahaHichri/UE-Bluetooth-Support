@@ -39,8 +39,7 @@ namespace UnrealBuildTool.Rules
                 "CoreUObject",
                 "Engine",
                 "Slate",
-                "SlateCore",
-                 "Settings"
+                "SlateCore"
                 }
                 );
 
