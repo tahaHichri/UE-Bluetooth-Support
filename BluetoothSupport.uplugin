@@ -1,23 +1,25 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "0.9",
-	"FriendlyName": "Bluetooth Support",
-	"Description": "Adds Bluetooth and Bluetooth Low Energy support to your project. Provides full access to Android's Bluetooth SDK from C++ and Blueprint.",
-	"Category": "Mobile",
-	"CreatedBy": "Taha HICHRI",
-	"CreatedByURL": "https://www.hishri.com/",
-	"DocsURL": "",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"CanContainContent": true,
-	"IsBetaVersion": true,
-	"Installed": false,
-	"Modules": [
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "0.9",
+    "FriendlyName": "Bluetooth Support",
+    "Description": "Adds Bluetooth and Bluetooth Low Energy support to your project. Provides full access to Android's Bluetooth SDK from C++ and Blueprint.",
+    "Category": "Mobile",
+    "CreatedBy": "Taha HICHRI",
+    "CreatedByURL": "https://www.hishri.com/",
+    "DocsURL": "",
+    "EngineVersion": "4.18.0",
+    "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/9685af6a5ec1477292b0990dbaf3eb6d",
+    "SupportURL": "",
+    "CanContainContent": true,
+    "IsBetaVersion": true,
+    "Installed": false,
+    "Modules": [
         {
             "Name": "BluetoothSupport",
             "Type": "Runtime",
-            "LoadingPhase": "PostConfigInit"
+            "LoadingPhase": "PostConfigInit",
+            "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
         }
-	]
+    ]
 }
