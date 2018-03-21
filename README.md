@@ -2,6 +2,7 @@
 A code plugin for Unreal Engine that allows developers to access the Bluetooth SDK from Blueprint and C++.
 The source code of "Bluetooth Support" code plugin on https://www.unrealengine.com/marketplace/bluetooth-support
 
+<img src="https://i.imgur.com/F03ARye.png" />
 
 Manual install
 <ol>
@@ -10,3 +11,5 @@ Manual install
 <li>Restart Unreal Engine (if it is running)</li>
 <li>Find the plugin under the "Mobile" category and enable it.</li>
 </ol>
+
+
