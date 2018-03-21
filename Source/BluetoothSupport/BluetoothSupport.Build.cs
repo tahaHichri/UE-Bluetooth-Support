@@ -3,8 +3,9 @@
 * @project    Bluetooth Support for UNREAL engine.
 * @author     Taha HICHRI <hishri.taha@gmail.com>
 * @see        https://github.com/hishriTaha
-* hishri.com - 2018
+* Copyright (c) 2018 hishri.com
 */
+
 
 using System.IO;
 
