@@ -7,13 +7,13 @@
     "Category": "Mobile",
     "CreatedBy": "Taha HICHRI",
     "CreatedByURL": "https://www.hishri.com/",
-    "DocsURL": "",
+    "DocsURL": "http://blog.hishri.com/bluetooth-support-code-plugin-for-unreal-engine-developer-guide/",
     "EngineVersion": "4.18.0",
     "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/9685af6a5ec1477292b0990dbaf3eb6d",
     "SupportURL": "",
     "CanContainContent": true,
     "IsBetaVersion": true,
-    "Installed": false,
+    "Installed": true,
     "Modules": [
         {
             "Name": "BluetoothSupport",
@@ -21,5 +21,7 @@
             "LoadingPhase": "PostConfigInit",
             "WhitelistPlatforms": [ "Win64", "Win32", "Mac", "IOS", "Android" ]
         }
-    ]
+    ],
+    "EnabledByDefault": true
+
 }
