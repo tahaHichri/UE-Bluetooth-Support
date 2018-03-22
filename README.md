@@ -7,7 +7,7 @@ The source code of "Bluetooth Support" code plugin on https://www.unrealengine.c
 Manual install
 <ol>
 <li>Clone/download zip this repository</li>
-<li>Move/unzip the plugin's downloaded folder inside this directory: <Your Project folder>/Plugins/</li>
+<li>Move/unzip the plugin's downloaded folder inside <b>your projects directory</b>/Plugins/</li>
 <li>Restart Unreal Engine (if it is running)</li>
 <li>Find the plugin under the "Mobile" category and enable it.</li>
 </ol>
