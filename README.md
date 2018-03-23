@@ -13,3 +13,7 @@ Manual install
 </ol>
 
 
+
+<img src="https://i.imgur.com/XL5pKEv.jpg" />
+
+
