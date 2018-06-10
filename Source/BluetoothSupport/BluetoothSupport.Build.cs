@@ -51,6 +51,7 @@ namespace UnrealBuildTool.Rules
                 }
                 );
 
+            // ignore platforms, except for Android.
             if (Target.Platform == UnrealTargetPlatform.Android)
             {
                 PrivateIncludePaths.Add("BluetoothSupport/Private/Android");
