@@ -115,7 +115,7 @@ jmethodID FAndroidGateway::ClearDiscoveredDevicesListMethod;
 		{
 			return FJavaWrapper::CallBooleanMethod(Env,
 				FJavaWrapper::GameActivityThis,
-				 FAndroidGateway::IsEnabledMethod);
+				FAndroidGateway::IsEnabledMethod);
 		}
 		return false;
 	}
@@ -206,9 +206,19 @@ jmethodID FAndroidGateway::ClearDiscoveredDevicesListMethod;
 	}
 
 
-static FCriticalSection ReceiversLock;
+	static void TriggerScanDeviceCallback(UBluetoothDevice* Ubd)
+	{
+		FBluetoothSupportModule * Module = FModuleManager::Get().LoadModulePtr<FBluetoothSupportModule>("BluetoothSupport");
+		if (Module != nullptr)
+		{
 
-static FString OurString = "";
+			Module->TriggerDeviceScanSucceedCompleteDelegates(Ubd);
+
+			Module = NULL;
+		}
+	}
+
+static FCriticalSection ReceiversLock;
 
 	extern "C"
 	{
@@ -247,14 +257,3 @@ static FString OurString = "";
 	}
 
 	*/
-	void TriggerScanDeviceCallback(UBluetoothDevice* Ubd)
-	{
-		FBluetoothSupportModule * Module = FModuleManager::Get().LoadModulePtr<FBluetoothSupportModule>("BluetoothSupport");
-		if (Module != nullptr)
-		{
-		
-			Module->TriggerDeviceScanSucceedCompleteDelegates(Ubd);
-
-			Module = NULL;
-		}
-	}

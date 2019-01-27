@@ -16,7 +16,7 @@ class  UScanDevicesCallback : public UScanCallbackBase
 public:
 
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search all nearby BLE devices", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Discover nearby BLE devices", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
 	static UScanDevicesCallback* ScanDeviceByMACaddr(int32 timeout);
 
 

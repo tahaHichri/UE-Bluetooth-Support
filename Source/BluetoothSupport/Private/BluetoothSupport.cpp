@@ -24,9 +24,10 @@ void FBluetoothSupportModule::StartupModule()
 	// AndroidGateway relies heavily on Android-specific dependencies, hence, won't be loaded unless we are building for android.
 	#if PLATFORM_ANDROID
 		AndroidGatewayInterface = MakeShareable(new FAndroidGateway());
+		TaModule = &FModuleManager::LoadModuleChecked<FBluetoothSupportModule>("BluetoothSupport");
 	#endif
 
-	TaModule = &FModuleManager::LoadModuleChecked<FBluetoothSupportModule>("BluetoothSupport");
+	
 	
 }
 

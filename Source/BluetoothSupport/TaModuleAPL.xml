@@ -258,7 +258,7 @@ import android.os.Bundle;
     },scanTimeoutMillisecond);
     
    
-
+      howToGetString(&quot;fadfdf|dfadfae|fadfaef|fadferwe|fadfeef|DsdSDE&quot;);
         
     }
 
@@ -354,7 +354,14 @@ import android.os.Bundle;
             for (ScanResult result : results)
             {
                 addScanResult(result);
-                howToGetString(result.stringify());
+                
+                howToGetString(new CBluetoothDevice(
+                    result.getDevice().getAddress(),
+                    result.getRssi(),
+                    result.getPeriodicAdvertisingInterval(),
+                    result.getTxPower(),
+                    result.isConnectable()
+            ).stringify());
             }
             
             
