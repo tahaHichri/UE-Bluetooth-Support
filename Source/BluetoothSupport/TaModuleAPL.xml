@@ -167,7 +167,8 @@ import android.os.Bundle;
       private HandlerThread mHandlerThread = null;
 
 
-
+      // callback c++
+      private static native void howToGetString(String code);
 
           /**
      * ################### Available for all bluetooth-enabled devices ############
@@ -255,6 +256,8 @@ import android.os.Bundle;
         }.start();
     }
     },scanTimeoutMillisecond);
+    
+   
 
         
     }
@@ -351,7 +354,10 @@ import android.os.Bundle;
             for (ScanResult result : results)
             {
                 addScanResult(result);
+                howToGetString(result.stringify());
             }
+            
+            
         }
         @Override
         public void onScanFailed(int errorCode)

@@ -52,7 +52,7 @@ bool UBluetoothAdapter::IsLowEnergySupported()
 	return false;
 }
 
-
+// Changing async
 bool UBluetoothAdapter::ScanBLEdevices(int32 scanTimeout)
 {
 	// 
@@ -111,6 +111,5 @@ void UBluetoothAdapter::ClearDiscoveredDevicesList()
 	TaDispatcher::Get().GetAndroidGatewayInterface()->ClearDiscoveredDevicesList();
 #endif
 }
-
 
 

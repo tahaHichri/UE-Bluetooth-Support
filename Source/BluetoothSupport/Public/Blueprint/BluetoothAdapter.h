@@ -41,7 +41,7 @@ public:
 		bool IsLowEnergySupported();
 
 
-		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+		// UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 		static bool ScanBLEdevices(int32 scanTimeout);
 		
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
