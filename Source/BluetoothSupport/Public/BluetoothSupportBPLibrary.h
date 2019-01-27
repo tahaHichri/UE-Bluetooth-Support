@@ -16,6 +16,10 @@
 /* 
  *	Function library class.
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeviceScanSuccessDelegate, UBluetoothDevice*, Device);
+
+
 UCLASS()
 class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 {
