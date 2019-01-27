@@ -42,7 +42,7 @@ public:
 
 
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
-		bool ScanBLEdevices(int32 scanTimeout);
+		static bool ScanBLEdevices(int32 scanTimeout);
 		
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 		bool ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID);
@@ -60,6 +60,11 @@ public:
 
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 		void ClearDiscoveredDevicesList();
+
+
+
+		// called from the callback directly
+		// static void findNearbyLaunchDevice(FString physicalAddr);
 
 
 

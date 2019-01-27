@@ -16,8 +16,8 @@ class  UScanDevicesCallback : public UScanCallbackBase
 public:
 
 
-	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Find Launch By MAC address", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
-	static UScanDevicesCallback* ScanDeviceByMACaddr(FString deviceAddr);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Search all nearby BLE devices", BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
+	static UScanDevicesCallback* ScanDeviceByMACaddr(int32 timeout);
 
 
 	virtual void Activete_imp() override;

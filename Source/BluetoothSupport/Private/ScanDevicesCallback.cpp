@@ -1,15 +1,16 @@
 #include "ScanDevicesCallback.h"
 
 FString searchDeviceAddr;
-UScanDevicesCallback* UScanDevicesCallback::ScanDeviceByMACaddr(FString deviceAddr)
+int32 searchTimeout;
+UScanDevicesCallback* UScanDevicesCallback::ScanDeviceByMACaddr(int32 timeout)
 {
 	UScanDevicesCallback* Proxy = NewObject<UScanDevicesCallback>();
-	searchDeviceAddr = deviceAddr;
+	searchTimeout = timeout;
 	return Proxy;
 }
 
 void UScanDevicesCallback::Activete_imp()
 {
-	UBluetoothSupportBPLibrary::findNearbyLaunchDevice(searchDeviceAddr);
+	UBluetoothAdapter::ScanBLEdevices(searchTimeout);
 	// call scan device start
 }

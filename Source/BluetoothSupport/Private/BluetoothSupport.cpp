@@ -13,6 +13,10 @@
 
 IMPLEMENT_MODULE(FBluetoothSupportModule, BluetoothSupport)
 
+// for legacy code, this is done repeatedly with every method call.
+// I am tiying this module's lifecycle with the game engine's lifecycle
+FBluetoothSupportModule* TaModule = NULL;
+
 
 void FBluetoothSupportModule::StartupModule()
 {
@@ -21,6 +25,8 @@ void FBluetoothSupportModule::StartupModule()
 	#if PLATFORM_ANDROID
 		AndroidGatewayInterface = MakeShareable(new FAndroidGateway());
 	#endif
+
+	TaModule = &FModuleManager::LoadModuleChecked<FBluetoothSupportModule>("BluetoothSupport");
 	
 }
 
@@ -28,6 +34,7 @@ void FBluetoothSupportModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
+	TaModule = NULL;
 	
 }
 

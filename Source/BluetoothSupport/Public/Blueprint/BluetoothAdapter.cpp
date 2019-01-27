@@ -53,7 +53,6 @@ bool UBluetoothAdapter::IsLowEnergySupported()
 }
 
 
-
 bool UBluetoothAdapter::ScanBLEdevices(int32 scanTimeout)
 {
 	// 
