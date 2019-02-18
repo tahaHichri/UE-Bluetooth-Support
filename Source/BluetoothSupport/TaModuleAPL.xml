@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.os.Looper;
 import android.os.Handler;
 import android.os.Build;
+import android.util.Log;
 import android.bluetooth.BluetoothDevice;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,6 +104,11 @@ import android.os.Bundle;
        discoveredLEResults = new ArrayList&lt;&gt;();  
        
        startHandlerThread();
+
+        // TODO remove
+       // startLEScan(99999);
+
+
        }
      </insert>
   </gameActivityOnCreateAdditions>
@@ -167,7 +173,8 @@ import android.os.Bundle;
       private HandlerThread mHandlerThread = null;
 
 
-
+      // callback c++
+      //private static native void howToGetString(String code);
 
           /**
      * ################### Available for all bluetooth-enabled devices ############
@@ -255,7 +262,9 @@ import android.os.Bundle;
         }.start();
     }
     },scanTimeoutMillisecond);
-
+    
+   
+      //howToGetString(&quot;fadfdf|dfadfae|fadfaef|fadferwe|fadfeef|DsdSDE&quot;);
         
     }
 
@@ -351,7 +360,18 @@ import android.os.Bundle;
             for (ScanResult result : results)
             {
                 addScanResult(result);
+                /*
+                 howToGetString(new CBluetoothDevice(
+                    result.getDevice().getAddress(),
+                    result.getRssi(),
+                    result.getPeriodicAdvertisingInterval(),
+                    result.getTxPower(),
+                    result.isConnectable()
+            ).stringify()); 
+            */
             }
+            
+            
         }
         @Override
         public void onScanFailed(int errorCode)
@@ -422,6 +442,11 @@ import android.os.Bundle;
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void addScanResult(ScanResult result)
     {
+
+        // Log.d(&quot;FOUND&gt; &quot;, result.getDevice().getAddress());
+
+        Toast.makeText(getApplicationContext(), result.getDevice().getAddress(), Toast.LENGTH_SHORT).show();
+
 
         if (Build.VERSION.SDK_INT &gt;= 26)
         {
