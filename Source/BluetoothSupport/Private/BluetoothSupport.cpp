@@ -35,7 +35,12 @@ void FBluetoothSupportModule::ShutdownModule()
 {
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
-	TaModule->ClearAllDeviceScanSucceedCompleteDelegate_Handle();
+	// TaModule->ClearAllDeviceScanSucceedCompleteDelegate_Handle();
+	#if PLATFORM_ANDROID
+	if (TaModule != NULL)
+		TaModule->ClearAllDeviceScanSucceedCompleteDelegate_Handle();
+	#endif
+
 	TaModule = NULL;
 	
 }

@@ -33,7 +33,7 @@ void UScanCallbackBase::OnSucceedComplete(UBluetoothDevice* Device)
 	PostSucceedComplete(Device);
 	OnResultFound.Broadcast(Device);
 
-	// TODO we should clear the trigger somwhere
+	// I should clear the trigger somwhere
 
 
 	SetReadyToDestroy();

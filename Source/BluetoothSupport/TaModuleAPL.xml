@@ -434,7 +434,7 @@ import android.os.Bundle;
 
         // Log.d(&quot;FOUND&gt; &quot;, result.getDevice().getAddress());
 
-        Toast.makeText(getApplicationContext(), result.getDevice().getAddress(), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(getApplicationContext(), result.getDevice().getAddress(), Toast.LENGTH_SHORT).show();
         
           scanNativeResultCallback(new CBluetoothDevice(
                     result.getDevice().getAddress(),
