@@ -16,12 +16,16 @@
 /* 
  *	Function library class.
  */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeviceScanSuccessDelegate, UBluetoothDevice*, Device);
+
+
 UCLASS()
 class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-		// The only method that can be called directly from BP.
-		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
-		static UBluetoothAdapter* GetBluetoothAdapter();
+	// The only method that can be called directly from BP.
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin" , meta = (ToolTip = "Get an instance of user device's Bluetooth adapter"))
+	static UBluetoothAdapter* GetBluetoothAdapter();
 };

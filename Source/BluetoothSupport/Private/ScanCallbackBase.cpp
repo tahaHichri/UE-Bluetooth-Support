@@ -31,7 +31,7 @@ void UScanCallbackBase::PostSucceedComplete(UBluetoothDevice* Device)
 void UScanCallbackBase::OnSucceedComplete(UBluetoothDevice* Device)
 {
 	PostSucceedComplete(Device);
-	OnSuccess.Broadcast(Device);
+	OnResultFound.Broadcast(Device);
 
 	// TODO we should clear the trigger somwhere
 

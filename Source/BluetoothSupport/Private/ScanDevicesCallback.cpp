@@ -2,7 +2,7 @@
 
 FString searchDeviceAddr;
 int32 searchTimeout;
-UScanDevicesCallback* UScanDevicesCallback::ScanDeviceByMACaddr(int32 timeout)
+UScanDevicesCallback* UScanDevicesCallback::ScanNearbyDevices(int32 timeout)
 {
 	UScanDevicesCallback* Proxy = NewObject<UScanDevicesCallback>();
 	searchTimeout = timeout;

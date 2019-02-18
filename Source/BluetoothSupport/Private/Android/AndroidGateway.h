@@ -17,6 +17,9 @@
 #include "Core.h"
 #include <string>
 
+#include "../BluetoothSupport.h"
+#include "Async.h"
+
 
 class FAndroidGateway : public IBluetoothOperationsInterface
 {

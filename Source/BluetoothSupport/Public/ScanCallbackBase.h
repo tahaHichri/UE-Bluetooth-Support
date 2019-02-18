@@ -19,7 +19,7 @@ public:
 
 	
 	UPROPERTY(BlueprintAssignable)
-	FDeviceScanSuccessDelegate OnSuccess;
+	FDeviceScanSuccessDelegate OnResultFound;
 
 	virtual void Activate() override;
 	virtual void Activete_imp();

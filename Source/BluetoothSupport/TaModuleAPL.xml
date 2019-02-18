@@ -174,7 +174,7 @@ import android.os.Bundle;
 
 
       // callback c++
-      //private static native void howToGetString(String code);
+      private static native void scanNativeResultCallback(String bluetoothDeviceStr);
 
           /**
      * ################### Available for all bluetooth-enabled devices ############
@@ -263,8 +263,6 @@ import android.os.Bundle;
     }
     },scanTimeoutMillisecond);
     
-   
-      //howToGetString(&quot;fadfdf|dfadfae|fadfaef|fadferwe|fadfeef|DsdSDE&quot;);
         
     }
 
@@ -360,15 +358,6 @@ import android.os.Bundle;
             for (ScanResult result : results)
             {
                 addScanResult(result);
-                /*
-                 howToGetString(new CBluetoothDevice(
-                    result.getDevice().getAddress(),
-                    result.getRssi(),
-                    result.getPeriodicAdvertisingInterval(),
-                    result.getTxPower(),
-                    result.isConnectable()
-            ).stringify()); 
-            */
             }
             
             
@@ -446,6 +435,14 @@ import android.os.Bundle;
         // Log.d(&quot;FOUND&gt; &quot;, result.getDevice().getAddress());
 
         Toast.makeText(getApplicationContext(), result.getDevice().getAddress(), Toast.LENGTH_SHORT).show();
+        
+          scanNativeResultCallback(new CBluetoothDevice(
+                    result.getDevice().getAddress(),
+                    result.getRssi(),
+                    result.getPeriodicAdvertisingInterval(),
+                    result.getTxPower(),
+                    result.isConnectable()
+            ).stringify()); 
 
 
         if (Build.VERSION.SDK_INT &gt;= 26)

@@ -204,3 +204,41 @@ jmethodID FAndroidGateway::ClearDiscoveredDevicesListMethod;
 			FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ClearDiscoveredDevicesListMethod);
 		}
 	}
+
+
+
+	/**
+	** Callback from JAVA activity class
+	*/
+	static void TriggerScanDeviceCallback(UBluetoothDevice* Ubd)
+	{
+		FBluetoothSupportModule * Module = FModuleManager::Get().LoadModulePtr<FBluetoothSupportModule>("BluetoothSupport");
+		if (Module != nullptr)
+		{
+
+			Module->TriggerDeviceScanSucceedCompleteDelegates(Ubd);
+
+			Module = NULL;
+		}
+	}
+
+	static FCriticalSection ReceiversLock;
+
+	extern "C"
+	{
+		JNIEXPORT void Java_com_epicgames_ue4_GameActivity_scanNativeResultCallback(JNIEnv * jni, jclass clazz, jstring code)
+		{
+			ReceiversLock.Lock();
+			const char* charsId = jni->GetStringUTFChars(code, 0);
+
+			UBluetoothDevice* Ubd = NewObject<UBluetoothDevice>();
+			Ubd->InitDevice(charsId);
+
+			// OurString = FString(UTF8_TO_TCHAR(charsId));
+
+			TriggerScanDeviceCallback(Ubd);
+
+			jni->ReleaseStringUTFChars(code, charsId);
+			ReceiversLock.Unlock();
+		}
+	}

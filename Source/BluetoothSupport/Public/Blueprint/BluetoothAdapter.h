@@ -41,8 +41,8 @@ public:
 		bool IsLowEnergySupported();
 
 
-		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin", meta = (DisplayName = "Scan all devices"))
-		bool ScanBLEdevices(int32 scanTimeout);
+		// UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin", meta = (DisplayName = "Scan all devices"))
+		static bool ScanBLEdevices(int32 scanTimeout);
 		
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin", meta = (DisplayName = "Scan devices having characterisitc"))
 		bool ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID);
