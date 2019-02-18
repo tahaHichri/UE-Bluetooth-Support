@@ -35,8 +35,6 @@ void UScanCallbackBase::OnSucceedComplete(UBluetoothDevice* Device)
 
 	// TODO we should clear the trigger somwhere
 
-	 TaModule->ClearAllDeviceScanSucceedCompleteDelegate_Handle();
-	 
 
 	SetReadyToDestroy();
 }
