@@ -276,8 +276,17 @@ import android.os.Bundle;
      *                               The loop is better be managed BP=side
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void scanByCharacteristic (int scanTimeoutMillisecond, String uuid)
+    public void scanByCharacteristic (int scanTimeoutMillisecond, final String uuidStr)
     {      
+        
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(getApplicationContext(), uuidStr, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // prevent user from calling scan multiple times
         if( isScanning() ) stopLEScan();
         
@@ -285,8 +294,16 @@ import android.os.Bundle;
         if ( !isBluetoothEnabled() || !isBluetoothLowEnergySupported() ) return;
 
         // We only want to scan for devices advertising our custom service
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(uuidStr);
+        } catch (IllegalArgumentException illArgExc)
+        {
+            return;
+        }
+
         ScanFilter scanFilter = new ScanFilter.Builder()
-                .setServiceUuid(new ParcelUuid(UUID.fromString(uuid)))
+                .setServiceUuid(new ParcelUuid(uuid))
                 .build();
 
 
@@ -300,15 +317,15 @@ import android.os.Bundle;
 
 
         mHandler.postDelayed(new Runnable() {
-    @Override
-    public void run() {
-        new Thread() {
-            @Override
-            public void run() {
-               stopLEScan();
-            }
-        }.start();
-    }
+        @Override
+        public void run() {
+            new Thread() {
+                @Override
+                public void run() {
+                stopLEScan();
+                }
+            }.start();
+        }
     },scanTimeoutMillisecond);
        
       

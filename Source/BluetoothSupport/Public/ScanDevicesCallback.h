@@ -18,7 +18,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Scan Nearby Bluetooth Devices", ToolTip = "Discover all nearby broadcasting devices", 
 		BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
-	static UScanDevicesCallback* ScanNearbyDevices(int32 timeout);
+	static UScanDevicesCallback* ScanNearbyDevices(int32 timeout, const FString& characteristicUUID);
 
 
 	virtual void Activete_imp() override;
