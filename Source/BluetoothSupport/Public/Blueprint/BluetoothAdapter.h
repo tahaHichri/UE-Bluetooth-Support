@@ -45,7 +45,7 @@ public:
 		static bool ScanBLEdevices(int32 scanTimeout);
 		
 		// UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin", meta = (DisplayName = "Scan devices having characterisitc"))
-		static bool ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID);
+		static bool ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress);
 
 
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")

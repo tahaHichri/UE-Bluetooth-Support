@@ -64,11 +64,11 @@ bool UBluetoothAdapter::ScanBLEdevices(int32 scanTimeout)
 }
 
 
-bool UBluetoothAdapter::ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID)
+bool UBluetoothAdapter::ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress)
 {
 	// 
 #if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanByCharacteristic(scanTimeout, characteristicUUID);
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanByCharacteristic(scanTimeout, serviceUUID, deviceAddress);
 #endif
 	return false;
 }

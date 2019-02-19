@@ -42,7 +42,7 @@ jmethodID FAndroidGateway::ClearDiscoveredDevicesListMethod;
 
 			IsEnabledMethod						= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothEnabled", "()Z", false);
 			ScanBLEdevicesMethod				= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "startLEScan", "(I)V", false);
-			ScanByCharacteristicMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "scanByCharacteristic", "(ILjava/lang/String;)V", false);
+			ScanByCharacteristicMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "startFilteredScan", "(ILjava/lang/String;Ljava/lang/String;)V", false);
 			StopScanMethod						= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "stopLEScan", "()V", false);
 			
 			
@@ -133,18 +133,20 @@ jmethodID FAndroidGateway::ClearDiscoveredDevicesListMethod;
 
 
 
-	bool FAndroidGateway::ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID)
+	bool FAndroidGateway::ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddr)
 	{
 		if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 		{
-			jstring jStringParam = Env->NewStringUTF( (std::string( TCHAR_TO_UTF8(*characteristicUUID) )).c_str());
+			jstring jStringParam = Env->NewStringUTF( (std::string( TCHAR_TO_UTF8(*serviceUUID) )).c_str());
 
-			if (!jStringParam)
+			jstring jStringAddrParam = Env->NewStringUTF((std::string(TCHAR_TO_UTF8(*deviceAddr))).c_str());
+
+			if (!jStringParam || !jStringAddrParam)
 			{
 				UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from uuid"));
 			}
 
-			FJavaWrapper::CallVoidMethod( Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ScanByCharacteristicMethod, scanTimeout, jStringParam);
+			FJavaWrapper::CallVoidMethod( Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ScanByCharacteristicMethod, scanTimeout, jStringParam, jStringAddrParam);
 			
 			 Env->DeleteLocalRef(jStringParam);
 			return true;
