@@ -34,8 +34,8 @@ public:
 	virtual bool IsBLESupported()			override;
 	virtual bool IsScanning()				override;
 
-	virtual bool ScanBLEdevices(int32 scanTimeout)									 override;
-	virtual bool ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID)	 override;
+	virtual bool ScanBLEdevices(int32 scanTimeout)									     override;
+	virtual bool ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress)	 override;
 
 	virtual void StopScan()					   override;
 

@@ -31,8 +31,25 @@ Before adding the plugin to your projects, please take these points into conside
 </ol>
 
 
+## Getting Started
+<u><i>Make sure that your target platform/device family satisfy the Prerequisites listed above</i></u>
 
-<img src="https://i.imgur.com/XL5pKEv.jpg" />
+There is no better way to understand how to integrate the use this plugin than seeing it in action!<br />
+You can go ahead and clone <a href="https://github.com/tahaHichri/UE4-Bluetooth-Support-DEMO">this demo project</a>. After opeining it on your UE4, you can naviguate to the project settings and take a look at the Blueprints to learn how to call the different functionnalities.
+
+
+## Change log
+Milestones on the "Release" channel of this repository.
+<ul>
+<li>v4.19-4: Unified Scan node with optional filters<br /><ul>
+<li>Scan all, and Scan by UUID are now unified an both support Async result callback, no need to call "getDiscoveredDevices" anymore.</li><li>Scan by MAC address added</li></ul></li>
+ <img src="https://i.imgur.com/kgeTB85.jpg" />
+<li>v4.19-3: Async scan callback for "filterless" scan.</li>
+</ul>
+
+
+
+<!--<img src="https://i.imgur.com/XL5pKEv.jpg" />-->
 
 
 

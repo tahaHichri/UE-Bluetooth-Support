@@ -268,27 +268,56 @@ import android.os.Bundle;
 
 
     /**
-     * Called to scan for LE devices with a provided Characteristic UUID only
+     * Called to scan for LE devices with a provided Service UUID only
      * The filtered scan will save unneeded extra treatment especially with
      * a big number of devices around.
-     * @param uuid of the characteristic needed.
+     * @param uuid of the service needed.
      * @param scanTimeoutMillisecond For how many milliseconds should I keep scanning?
      *                               The loop is better be managed BP=side
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void scanByCharacteristic (int scanTimeoutMillisecond, String uuid)
+    public void startFilteredScan (int scanTimeoutMillisecond, final String uuidStr, final String deviceAddr)
     {      
+        //runOnUiThread(new Runnable() 
+        //{
+        //    public void run() { 
+        //        Toast.makeText(getApplicationContext(), uuidStr+&quot;|&quot;+deviceAddr, Toast.LENGTH_SHORT).show();
+        //    } 
+        //}); 
+
         // prevent user from calling scan multiple times
         if( isScanning() ) stopLEScan();
         
         // taBluetoothLeScanner would be null if bluetooth is disabled
         if ( !isBluetoothEnabled() || !isBluetoothLowEnergySupported() ) return;
 
-        // We only want to scan for devices advertising our custom service
-        ScanFilter scanFilter = new ScanFilter.Builder()
-                .setServiceUuid(new ParcelUuid(UUID.fromString(uuid)))
-                .build();
+        ScanFilter scanFilter = null;
 
+        if (!uuidStr.equals(&quot;&quot;))
+        {
+
+        // We only want to scan for devices advertising our custom service
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(uuidStr);
+        
+            scanFilter = new ScanFilter.Builder()
+                        .setServiceUuid(new ParcelUuid(uuid))
+                .build();
+        } catch (IllegalArgumentException illArgExc)
+        {
+            // ignore
+        }
+
+        }
+         if (!deviceAddr.equals(&quot;&quot;))
+        {
+            scanFilter = new ScanFilter.Builder()
+                    .setDeviceAddress(deviceAddr)
+                    .build();
+        }
+
+        if (scanFilter == null ) return;
 
         mScanCallback = new BtleScanCallback();
 
@@ -300,15 +329,15 @@ import android.os.Bundle;
 
 
         mHandler.postDelayed(new Runnable() {
-    @Override
-    public void run() {
-        new Thread() {
-            @Override
-            public void run() {
-               stopLEScan();
-            }
-        }.start();
-    }
+        @Override
+        public void run() {
+            new Thread() {
+                @Override
+                public void run() {
+                stopLEScan();
+                }
+            }.start();
+        }
     },scanTimeoutMillisecond);
        
       

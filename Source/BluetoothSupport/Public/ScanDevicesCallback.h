@@ -15,10 +15,12 @@ class  UScanDevicesCallback : public UScanCallbackBase
 
 public:
 
-	
+	/**
+	* service UUID and MAC addr are optional filters
+	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Scan Nearby Bluetooth Devices", ToolTip = "Discover all nearby broadcasting devices", 
 		BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
-	static UScanDevicesCallback* ScanNearbyDevices(int32 timeout);
+	static UScanDevicesCallback* ScanNearbyDevices(int32 timeout, const FString& serviceUUID, const FString& deviceAddress);
 
 
 	virtual void Activete_imp() override;
