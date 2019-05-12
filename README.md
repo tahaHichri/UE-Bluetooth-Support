@@ -48,9 +48,11 @@ Milestones on the "Release" channel of this repository.
 </ul>
 
 
+## Donate
 
-<!--<img src="https://i.imgur.com/XL5pKEv.jpg" />-->
+If you found this project helpful, consider buying me a :coffee: 
 
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/tahaHichri)
 
 
 # LICENSE
