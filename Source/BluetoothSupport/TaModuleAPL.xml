@@ -36,7 +36,6 @@
         import android.os.Looper;
         import android.os.Handler;
         import android.os.Build;
-        import android.util.Log;
         import android.bluetooth.BluetoothDevice;
         import java.util.ArrayList;
         import java.util.Arrays;
@@ -100,9 +99,6 @@
             .build();
             
             discoveredLEResults = new ArrayList<>();  
-            
-            // Create new thread, start it and get its handler to control it.
-            startHandlerThread();
         }
     ]]>
     </insert>
@@ -111,6 +107,9 @@
   <!-- Optional additions to GameActivity onDestroy in GameActivity.java. -->
   <gameActivityOnDestroyAdditions>
     <insert><![CDATA[
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && isScanning) {
+            stopLEScan();
+        }
         mHandler = null;
     ]]>
     </insert>
@@ -171,13 +170,12 @@
 
         private boolean isScanning = false;
         
-        // These 2 variables will be set in startHandlerThread() which will be called OnCreate.
-        private Handler mHandler;
-        private HandlerThread mHandlerThread = null;
+        private Handler mHandler = new Handler();
 
 
         // Callback c++.
         private static native void scanNativeResultCallback(String bluetoothDeviceStr);
+        private static native void printDebugUEMessage(String msg);
 
         /**
         * ################### Available for all bluetooth-enabled devices ############
@@ -246,11 +244,11 @@
             taBluetoothLeScanner = taBluetoothAdapter.getBluetoothLeScanner();
 
             // For this method, list all available devices.
-            taBluetoothLeScanner.startScan(new ArrayList<ScanFilter>(),
+            isScanning = true;
+
+            taBluetoothLeScanner.startScan(null,
                     scanSettings,
                     mScanCallback);
-
-            isScanning = true;
 
             mHandler.postDelayed(new Runnable() {
                 @Override
@@ -338,7 +336,6 @@
 
         /**
         * If the device is scanning.
-        * TODO: make sure that this method is available from c++ otherwise there is no use in it.
         */
         public boolean isScanning()
         {
@@ -374,7 +371,7 @@
             @Override
             public void onScanFailed(int errorCode)
             {
-                // TODO: Create a more good error handling.
+                // TODO: Create a more good error handling. (maybe calling printDebugUEMessage or Log.e?)
             }
         }
 
@@ -498,13 +495,6 @@
                         "|" + isConnectable + 
                         "|" + lastDiscovery);
             }
-        }
-
-        public void startHandlerThread()
-        {
-            mHandlerThread = new HandlerThread("HandlerThread");
-            mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper());
         }
 
     ]]>

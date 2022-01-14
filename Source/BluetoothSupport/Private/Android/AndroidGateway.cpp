@@ -233,4 +233,17 @@ extern "C"
 		jni->ReleaseStringUTFChars(code, charsId);
 		ReceiversLock.Unlock();
 	}
+
+	JNIEXPORT void Java_com_epicgames_ue4_GameActivity_printDebugUEMessage(JNIEnv * jni, jclass clazz, jstring message)
+	{
+		const char* charsId = jni->GetStringUTFChars(message, 0);
+
+		FString debug_Message = FString(UTF8_TO_TCHAR(charsId));
+
+		if(GEngine) {
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, debug_Message);  
+		}
+
+		jni->ReleaseStringUTFChars(message, charsId);
+	}
 }
