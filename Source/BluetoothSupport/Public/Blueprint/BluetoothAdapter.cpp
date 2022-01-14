@@ -56,7 +56,6 @@ bool UBluetoothAdapter::IsLowEnergySupported()
 
 bool UBluetoothAdapter::ScanBLEdevices(int32 scanTimeout)
 {
-	// 
 #if PLATFORM_ANDROID
 	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanBLEdevices( scanTimeout );
 #endif
@@ -66,7 +65,6 @@ bool UBluetoothAdapter::ScanBLEdevices(int32 scanTimeout)
 
 bool UBluetoothAdapter::ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress)
 {
-	// 
 #if PLATFORM_ANDROID
 	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanByCharacteristic(scanTimeout, serviceUUID, deviceAddress);
 #endif
@@ -86,7 +84,6 @@ void UBluetoothAdapter::StopScan()
 
 bool UBluetoothAdapter::IsScanning()
 {
-	//
 #if PLATFORM_ANDROID
 	return TaDispatcher::Get().GetAndroidGatewayInterface()->IsScanning();
 #endif
@@ -97,7 +94,6 @@ bool UBluetoothAdapter::IsScanning()
 TArray<UBluetoothDevice*> UBluetoothAdapter::GetDiscoveredDevices()
 {
 	TArray<UBluetoothDevice*> DiscoveredDevices;
-	// 
 #if PLATFORM_ANDROID
 	return TaDispatcher::Get().GetAndroidGatewayInterface()->GetDiscoveredDevices();
 #endif
@@ -107,7 +103,6 @@ TArray<UBluetoothDevice*> UBluetoothAdapter::GetDiscoveredDevices()
 
 void UBluetoothAdapter::ClearDiscoveredDevicesList()
 {
-	//
 #if PLATFORM_ANDROID
 	TaDispatcher::Get().GetAndroidGatewayInterface()->ClearDiscoveredDevicesList();
 #endif

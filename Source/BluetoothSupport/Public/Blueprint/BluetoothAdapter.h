@@ -19,16 +19,12 @@ class UBluetoothAdapter : public UObject
 	GENERATED_BODY()
 	
 public:
-		//UBluetoothAdapter(const FObjectInitializer& ObjectInitializer);
-		
 		FString Name;
 		FString LocalAddress;
 
 		static UBluetoothAdapter* GetInstance();
 
-		//UBluetoothAdapter();
-
-		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+		UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
 		bool IsEnabled();
 
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
@@ -37,14 +33,11 @@ public:
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 		bool DisableBluetooth();
 
-		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+		UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
 		bool IsLowEnergySupported();
 
-
-		// UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin", meta = (DisplayName = "Scan all devices"))
 		static bool ScanBLEdevices(int32 scanTimeout);
 		
-		// UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin", meta = (DisplayName = "Scan devices having characterisitc"))
 		static bool ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress);
 
 
@@ -60,8 +53,4 @@ public:
 
 		UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 		void ClearDiscoveredDevicesList();
-
-
-
-	
 };

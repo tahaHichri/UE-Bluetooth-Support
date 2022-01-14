@@ -57,9 +57,4 @@ public:
 
 	static jmethodID GetDiscoveredDevicesMethod;
 	static jmethodID ClearDiscoveredDevicesListMethod;
-
-	static jclass NativeBluetoothDeviceClass;
-
-
-
 };

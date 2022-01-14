@@ -11,56 +11,63 @@ using System.IO;
 
 namespace UnrealBuildTool.Rules
 {
-    public class BluetoothSupport : ModuleRules
-    {
-        public BluetoothSupport(ReadOnlyTargetRules Target) : base(Target)
-        {
-            PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+	public class BluetoothSupport : ModuleRules
+	{
+		public BluetoothSupport(ReadOnlyTargetRules Target) : base(Target)
+		{
+			PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-            PrivateIncludePaths.AddRange(
-                new string[] {
-                "BluetoothSupport/Private",
-                }
-                );
-
-
-            PublicDependencyModuleNames.AddRange(
-                new string[]
-                {
-                "Core",
-                "Engine",
-                "CoreUObject"
-                }
-                );
+			PrivateIncludePaths.AddRange(
+				new string[] {
+				"BluetoothSupport/Private",
+				}
+				);
 
 
-            PrivateDependencyModuleNames.AddRange(
-                new string[]
-                {
-                "CoreUObject",
-                "Engine",
-                "Slate",
-                "SlateCore"
-                }
-                );
+			PublicDependencyModuleNames.AddRange(
+				new string[]
+				{
+				"Core",
+				"Engine",
+				"CoreUObject"
+				}
+				);
 
 
-            DynamicallyLoadedModuleNames.AddRange(
-                new string[]
-                {
-                }
-                );
+			PrivateDependencyModuleNames.AddRange(
+				new string[]
+				{
+				"CoreUObject",
+				"Engine",
+				"Slate",
+				"SlateCore"
+				}
+				);
 
-            // ignore platforms, except for Android.
-            if (Target.Platform == UnrealTargetPlatform.Android)
-            {
-                PrivateIncludePaths.Add("BluetoothSupport/Private/Android");
 
-                PrivateDependencyModuleNames.AddRange(new string[] { "Launch" });
+			DynamicallyLoadedModuleNames.AddRange(
+				new string[]
+				{
+				}
+				);
 
-                string PluginRelativePath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
-                AdditionalPropertiesForReceipt.Add(new ReceiptProperty("AndroidPlugin", Path.Combine(PluginRelativePath, "TaModuleAPL.xml")));
-            }
-        }
-    }
+			PrivateIncludePathModuleNames.AddRange(
+			new string[] {
+				"Settings",
+				"Launch",
+			}
+			);
+
+			// Ignore platforms, except for Android.
+			if (Target.Platform == UnrealTargetPlatform.Android)
+			{
+				PrivateIncludePaths.Add("BluetoothSupport/Private/Android");
+
+				PrivateDependencyModuleNames.AddRange(new string[] { "Launch" });
+
+				string PluginRelativePath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
+				AdditionalPropertiesForReceipt.Add(new ReceiptProperty("AndroidPlugin", Path.Combine(PluginRelativePath, "TaModuleAPL.xml")));
+			}
+		}
+	}
 }

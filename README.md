@@ -41,6 +41,7 @@ You can go ahead and clone <a href="https://github.com/tahaHichri/UE4-Bluetooth-
 ## Change log
 Milestones on the "Release" channel of this repository.
 <ul>
+<li>Added 4.27 support. Updates.</li>
 <li>v4.19-4: Unified Scan node with optional filters<br /><ul>
 <li>Scan all, and Scan by UUID are now unified an both support Async result callback, no need to call "getDiscoveredDevices" anymore.</li><li>Scan by MAC address added</li></ul></li>
  <img src="https://i.imgur.com/kgeTB85.jpg" />

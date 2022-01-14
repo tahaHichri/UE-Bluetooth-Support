@@ -17,7 +17,6 @@ UBluetoothSupportBPLibrary::UBluetoothSupportBPLibrary(const FObjectInitializer&
 	: Super(ObjectInitializer)
 {
 	BluetoothAdapterIns = NewObject<UBluetoothAdapter>();
-
 }
 
 UBluetoothAdapter* UBluetoothSupportBPLibrary::GetBluetoothAdapter()

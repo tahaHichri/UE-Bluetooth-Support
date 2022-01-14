@@ -21,7 +21,7 @@ public:
 	FString     address;
 	int32       rssi;
 
-	// Returned with API > 26
+	// Returned with API > 26.
 	int32       periodicAdvertisingInterval;	
 	int32       txPower;
 
@@ -31,24 +31,21 @@ public:
 
 	void InitDevice(FString stringifiedDeviceInformation);
 
-	
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Device")
-	FString GetAddress();
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Device") FORCEINLINE 
+	FString GetAddress() { return address; }
 
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Device")
-	int32 GetRssi();
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Device") FORCEINLINE 
+	int32 GetRssi() { return rssi; }
 
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Device")
-	int32 GetPeriodicAdvertisingInterval();
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Device") FORCEINLINE 
+	int32 GetPeriodicAdvertisingInterval() { return periodicAdvertisingInterval; }
 
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Device")
-	int32 GetTxPower();
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Device") FORCEINLINE 
+	int32 GetTxPower() { return txPower; }
 
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Device")
-	int32 GetLastSeen();
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Device") FORCEINLINE 
+	int32 GetLastSeen() { return lastDiscovery; }
 
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Device")
-	bool IsConnectable();
-
-
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Device") FORCEINLINE 
+	bool IsConnectable() { return isConnectable; };
 };

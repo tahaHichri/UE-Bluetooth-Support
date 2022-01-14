@@ -13,9 +13,9 @@ UScanCallbackBase::UScanCallbackBase() :
 
 void UScanCallbackBase::Activate()
 {
-		TaModule->ClearAllDeviceScanSucceedCompleteDelegate_Handle();
-		SucceedDelegateHandle = TaModule->AddDeviceScanSucceedCompleteDelegate_Handle(SucceedDelegate);
-		Activete_imp();
+	TaModule->ClearAllDeviceScanSucceedCompleteDelegate_Handle();
+	SucceedDelegateHandle = TaModule->AddDeviceScanSucceedCompleteDelegate_Handle(SucceedDelegate);
+	Activete_imp();
 }
 
 void UScanCallbackBase::Activete_imp()
@@ -33,7 +33,7 @@ void UScanCallbackBase::OnSucceedComplete(UBluetoothDevice* Device)
 	PostSucceedComplete(Device);
 	OnResultFound.Broadcast(Device);
 
-	// I should clear the trigger somwhere
+	// I should clear the trigger somwhere.
 
 
 	SetReadyToDestroy();
