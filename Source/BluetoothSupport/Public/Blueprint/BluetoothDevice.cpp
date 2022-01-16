@@ -12,15 +12,17 @@
 void UBluetoothDevice::InitDevice(FString stringifiedDeviceInformation)
 {
 	// Split stringified information
-	// "address|rssi|periodicAdvertisingInterval|txPower|isConnectable".
+	// "name|address|rssi|periodicAdvertisingInterval|txPower|isConnectable|lastDiscovery".
 
 	TArray<FString> DeviceInfoArr = {};
 	stringifiedDeviceInformation.ParseIntoArray(DeviceInfoArr, TEXT("|"), true);
 
-	address	= DeviceInfoArr[0];
-	rssi = FCString::Atoi(*DeviceInfoArr[1]);
-	periodicAdvertisingInterval = FCString::Atoi(*DeviceInfoArr[2]);
-	txPower = FCString::Atoi(*DeviceInfoArr[3]);
-	isConnectable = (DeviceInfoArr[4] == "true") ? true : false;
-	lastDiscovery = FCString::Atoi(*DeviceInfoArr[5]);
+	name = DeviceInfoArr[0];
+	address	= DeviceInfoArr[1];
+	rssi = FCString::Atoi(*DeviceInfoArr[2]);
+	periodicAdvertisingInterval = FCString::Atoi(*DeviceInfoArr[3]);
+	txPower = FCString::Atoi(*DeviceInfoArr[4]);
+	isConnectable = (DeviceInfoArr[5] == "true") ? true : false;
+	// Java' method getTime() returns the time from January 1, 1970, 00:00:00 GMT in milliseconds, so we devide by 1000.
+	lastDiscovery = FDateTime::FromUnixTimestamp((int64)FCString::Atoi64(*DeviceInfoArr[6])/1000);
 }

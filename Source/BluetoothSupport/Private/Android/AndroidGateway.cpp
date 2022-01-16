@@ -12,6 +12,8 @@
 #include "AndroidGateway.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
+jmethodID FAndroidGateway::IsBluetoothSupportedMethod;
+jmethodID FAndroidGateway::ShowAndroidToastMethod;
 
 jmethodID FAndroidGateway::IsEnabledMethod;
 
@@ -33,6 +35,9 @@ FAndroidGateway::FAndroidGateway()
 {
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
+		IsBluetoothSupportedMethod		= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothSupported", "()Z", false);
+		ShowAndroidToastMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "ShowToast", "(Ljava/lang/String;)V", false);
+
 		DisableBluetoothAdapterMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "disableBluetooth", "()V", false);
 		IsBLESupportedMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothLowEnergySupported", "()Z", false);
 		IsScanningMethod				= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isScanning", "()Z", false);
@@ -53,6 +58,18 @@ FAndroidGateway::~FAndroidGateway()
 {
 }
 
+void FAndroidGateway::ShowAndroidToast(FString toastString) 
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		jstring JavaString = Env->NewStringUTF(TCHAR_TO_UTF8(*toastString));
+		if (!JavaString) {
+			UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from toastString"));
+		}
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ShowAndroidToastMethod, JavaString);
+		Env->DeleteLocalRef(JavaString);
+	}
+}
 
 bool FAndroidGateway::IsScanning()
 {
@@ -64,6 +81,15 @@ bool FAndroidGateway::IsScanning()
 	return bResult;
 }
 
+bool FAndroidGateway::IsBluetoothSupported()
+{
+	bool bResult = false;
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		bResult = FJavaWrapper::CallBooleanMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::IsBluetoothSupportedMethod);
+	}
+	return bResult;
+}
 
 bool FAndroidGateway::IsBLESupported()
 {
@@ -136,7 +162,7 @@ bool FAndroidGateway::ScanByCharacteristic(int32 scanTimeout, FString serviceUUI
 
 		if (!jStringParam || !jStringAddrParam)
 		{
-			UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from uuid"));
+			UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from uuid or address string"));
 		}
 
 		FJavaWrapper::CallVoidMethod( Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ScanByCharacteristicMethod, scanTimeout, jStringParam, jStringAddrParam);

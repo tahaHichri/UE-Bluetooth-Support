@@ -1,4 +1,5 @@
 #include "ScanDevicesCallback.h"
+#include "BluetoothSupportBPLibrary.h"
 
 
 void UScanDevicesCallback::Activate()
@@ -8,10 +9,10 @@ void UScanDevicesCallback::Activate()
 	// Characteristic is optional, scan without filters if not present.
 	if (searchService.IsEmpty() && searchAddress.IsEmpty())
 	{
-		UBluetoothAdapter::ScanBLEdevices(searchTimeout);
+		UBluetoothSupportBPLibrary::ScanBLEdevices(searchTimeout);
 	} 
 	else {
-		UBluetoothAdapter::ScanByCharacteristic(searchTimeout, searchService, searchAddress);
+		UBluetoothSupportBPLibrary::ScanByCharacteristic(searchTimeout, searchService, searchAddress);
 	}
 	
 	// Call scan device start.
@@ -31,7 +32,5 @@ void UScanDevicesCallback::OnSucceedComplete(UBluetoothDevice* Device)
 	OnResultFound.Broadcast(Device);
 
 	// I should clear the trigger somwhere.
-
-
 	SetReadyToDestroy();
 }

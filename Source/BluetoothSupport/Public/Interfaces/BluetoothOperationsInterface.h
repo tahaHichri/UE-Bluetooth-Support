@@ -18,6 +18,9 @@
 class IBluetoothOperationsInterface
 { 
 public:
+	virtual bool IsBluetoothSupported() = 0;
+	virtual void ShowAndroidToast(FString toastString) = 0;
+
 	virtual bool IsEnabled() = 0;
 	virtual bool EnableBluetoothAdapter() = 0;
 	virtual bool DisableBluetoothAdapter() = 0;

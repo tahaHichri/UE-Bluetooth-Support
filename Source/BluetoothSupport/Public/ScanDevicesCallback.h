@@ -5,9 +5,9 @@
 #include "Kismet/BlueprintAsyncActionBase.h"
 #include "../Private/BluetoothSupport.h"
 #include "Blueprint/BluetoothDevice.h"
-#include "BluetoothSupportBPLibrary.h"
 #include "ScanDevicesCallback.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeviceScanSuccessDelegate, UBluetoothDevice*, Device);
 
 UCLASS()
 class  UScanDevicesCallback : public UBlueprintAsyncActionBase
@@ -27,7 +27,7 @@ public:
 	FDeviceScanSuccessDelegate OnResultFound;
 
 	UScanDevicesCallback() :
-		SucceedDelegate(FDeviceScanSucceedCompleteDelegate::CreateUObject(this, &ThisClass::OnSucceedComplete)) {}
+		SucceedDelegate(FDeviceScanSucceedCompleteDelegate::CreateUObject(this, &UScanDevicesCallback::OnSucceedComplete)) {}
 
 	/**
 	* Service UUID and MAC addr are optional filters.

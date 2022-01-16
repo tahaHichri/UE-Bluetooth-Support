@@ -8,7 +8,6 @@
 
 
 #include "BluetoothSupport.h"
-#include "BluetoothSupportBPLibrary.h"
 
 
 IMPLEMENT_MODULE(FBluetoothSupportModule, BluetoothSupport)

@@ -9,15 +9,8 @@
 #pragma once
 
 #include "CoreDelegates.h"
-#include "Blueprint/BluetoothAdapter.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "BluetoothSupportBPLibrary.generated.h"
-
-/* 
- *	Function library class.
- */
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDeviceScanSuccessDelegate, UBluetoothDevice*, Device);
 
 
 UCLASS()
@@ -25,7 +18,39 @@ class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
-	// The only method that can be called directly from BP.
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin" , meta = (ToolTip = "Get an instance of user device's Bluetooth adapter"))
-	static UBluetoothAdapter* GetBluetoothAdapter();
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
+	static bool IsBluetoothEnabled();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static bool EnableBluetooth();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static bool DisableBluetooth();
+
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
+	static bool IsLowEnergySupported();
+
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
+	static bool IsBluetoothSupported();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static void ShowAndroidToast(FString toastString);
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static void StopBluetoothScan();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static bool IsBluetoothScanning();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static TArray<UBluetoothDevice*> GetDiscoveredDevices();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static void ClearDiscoveredDevicesList();
+
+	/** These functions are for c++ only: */
+
+	static bool ScanBLEdevices(int32 scanTimeout);
+	
+	static bool ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress);
 };

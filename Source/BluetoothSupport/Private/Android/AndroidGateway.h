@@ -27,6 +27,9 @@ public:
 	FAndroidGateway();
 	virtual ~FAndroidGateway();
 
+	virtual bool IsBluetoothSupported()		override;
+	virtual void ShowAndroidToast(FString toastString)		override;
+
 	virtual bool IsEnabled()				override;
 
 	virtual bool EnableBluetoothAdapter()	override;
@@ -44,6 +47,9 @@ public:
 	virtual TArray<UBluetoothDevice*> GetDiscoveredDevices()	override;
 
 	// JNI Methods
+	static jmethodID IsBluetoothSupportedMethod;
+	static jmethodID ShowAndroidToastMethod;
+
 	static jmethodID IsEnabledMethod;
 
 	static jmethodID EnableBluetoothAdapterMethod;

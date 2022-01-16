@@ -55,6 +55,7 @@
         import android.bluetooth.le.ScanCallback;
         import android.bluetooth.le.ScanResult;
         import android.os.HandlerThread;
+        import java.util.concurrent.Semaphore;
 
         import android.os.Bundle;
     </insert>
@@ -81,12 +82,15 @@
   -->
   <gameActivityOnCreateAdditions>
     <insert><![CDATA[
-        final BluetoothManager bluetoothManager =
-        (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        taBluetoothAdapter = null;
         // Accessing the device's default bluetooth adapter (API level 18).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
         {
-            taBluetoothAdapter = bluetoothManager.getAdapter();
+            final BluetoothManager bluetoothManager =
+            (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            if (bluetoothManager != null) {
+                taBluetoothAdapter = bluetoothManager.getAdapter();
+            }
         }
 
         // Nearby device discovery, connection, characteristic reading (API level 21).
@@ -172,10 +176,31 @@
         
         private Handler mHandler = new Handler();
 
+        // Semaphore used for access discoveredLEResults.
+        private final Semaphore availableLEResults = new Semaphore(1);
+
 
         // Callback c++.
         private static native void scanNativeResultCallback(String bluetoothDeviceStr);
         private static native void printDebugUEMessage(String msg);
+        
+        /**
+        * If this device have bluetooth.
+        * @return True if enabled, false otherwise.
+        */
+        public boolean isBluetoothSupported()
+        {
+            return (taBluetoothAdapter != null);
+        }
+
+        // Simply shows a toast text.
+        public void ShowToast(final String toast) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
         /**
         * ################### Available for all bluetooth-enabled devices ############
@@ -185,7 +210,7 @@
         */
         public boolean isBluetoothLowEnergySupported()
         {
-            return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE) ;
+            return getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
         }
 
         /**
@@ -237,7 +262,8 @@
             // Prevent user from calling scan multiple times.
             if( isScanning ) stopLEScan();
             
-            // If this check fails then getBluetoothLeScanner() returns null.
+            // If this check fails then getBluetoothLeScanner() returns null. 
+            // If current device don't support bluetooth then isBluetoothEnabled() will be false.
             if ( !isBluetoothEnabled() || !isBluetoothLowEnergySupported() ) return;
 
             mScanCallback = new BtleScanCallback();
@@ -273,6 +299,7 @@
             if( isScanning ) stopLEScan();
 
             // If this check fails then getBluetoothLeScanner() returns null.
+            // If current device don't support bluetooth then isBluetoothEnabled() will be false.
             if ( !isBluetoothEnabled() || !isBluetoothLowEnergySupported() ) return;
 
             ScanFilter scanFilter = null;
@@ -353,13 +380,13 @@
             {
                 // Delaying results of scan and getting a batch of results instead of a callback fuss.
                 // This callback will never be called with delay.
+                addScanResult(result);
+                // I put the function here for future features.
             }
 
             @Override
             public void onBatchScanResults(List<ScanResult> results)
             {
-                // Since a device might go offline without notification, no history will be kept.
-                if ( results.size() > 0 ) discoveredLEResults.clear();
                 // Go through the list of devices
                 // with filters, I might get only one result. Stays valid.
                 for (ScanResult result : results)
@@ -416,6 +443,7 @@
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) // API level >= 26.
             {
                 currentDevice = new CBluetoothDevice(
+                    result.getDevice().getName(),
                     result.getDevice().getAddress(),
                     result.getRssi(),
                     result.getPeriodicAdvertisingInterval(),
@@ -424,12 +452,28 @@
                 );
             } else {
                 currentDevice = new CBluetoothDevice(
+                    result.getDevice().getName(),
                     result.getDevice().getAddress(),
                     result.getRssi()
                 );
             }
 
-            discoveredLEResults.add(currentDevice);
+            // Instead of just discoveredLEResults.add(currentDevice); we firstly check if the device is already in array.
+            availableLEResults.acquireUninterruptibly();
+            boolean alreadyInArray = false;
+            for (CBluetoothDevice device : discoveredLEResults) {
+                if (device.equals(currentDevice)) {
+                    device.lastDiscovery = new Date().getTime();
+                    alreadyInArray = true;
+                    break;
+                }
+            }
+
+            if (!alreadyInArray) {
+                discoveredLEResults.add(currentDevice);
+            }
+            availableLEResults.release();
+
             // See AndroidGateway.cpp for this function implementation.
             scanNativeResultCallback(currentDevice.stringify()); 
         }
@@ -441,11 +485,13 @@
         {
             if ( discoveredLEResults != null )
             {
+                availableLEResults.acquireUninterruptibly();
                 String[] discoveredLEResultsArr = new String[discoveredLEResults.size()];
                 
                 for (int count = 0; count < discoveredLEResults.size(); count++)
                     discoveredLEResultsArr[count] = discoveredLEResults.get(count).stringify();
 
+                availableLEResults.release();
                 return discoveredLEResultsArr;
             }
 
@@ -454,21 +500,29 @@
 
         public void clearDiscoveredDevices()
         {
-            if ( discoveredLEResults != null ) discoveredLEResults.clear();
+            if ( discoveredLEResults != null ) { 
+                availableLEResults.acquireUninterruptibly();
+                discoveredLEResults.clear();
+                availableLEResults.release();
+            }
         }
 
         // This class will help in the passing of Objects via JNI.
         class CBluetoothDevice
         {
+            String  name;
             String  address;
             int     rssi;
+            long    lastDiscovery;
+
+            // API >= 26 variables:
             int     periodicAdvertisingInterval = ScanResult.PERIODIC_INTERVAL_NOT_PRESENT; // 0
             int     txPower = ScanResult.TX_POWER_NOT_PRESENT; // 127
             boolean isConnectable = false;
-            long    lastDiscovery;
 
-            CBluetoothDevice(String addr, int rssi, int periodicAdvertisingInterval, int txPower, boolean isConnectable)
+            CBluetoothDevice(String name, String addr, int rssi, int periodicAdvertisingInterval, int txPower, boolean isConnectable)
             {
+                this.name = name;
                 this.address = addr;
                 this.rssi = rssi;
                 this.periodicAdvertisingInterval = periodicAdvertisingInterval;
@@ -478,8 +532,9 @@
             }
 
             // API < 26
-            CBluetoothDevice(String addr, int rssi)
+            CBluetoothDevice(String name, String addr, int rssi)
             {
+                this.name = name;
                 this.address = addr;
                 this.rssi = rssi;
                 lastDiscovery = new Date().getTime();
@@ -488,12 +543,18 @@
             // This string we pass to c++.
             public String stringify()
             {
-                return ("" + address + 
+                return ("" + name + 
+                        "|" + address + 
                         "|" + rssi + 
                         "|" + periodicAdvertisingInterval + 
                         "|" + txPower + 
                         "|" + isConnectable + 
                         "|" + lastDiscovery);
+            }
+
+            // For addScanResult function.
+            public boolean equals(CBluetoothDevice other) {
+                return (this.name.equals(other.name) && this.address.equals(other.address));
             }
         }
 
