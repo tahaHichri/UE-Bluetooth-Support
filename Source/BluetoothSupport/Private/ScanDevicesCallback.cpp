@@ -9,19 +9,20 @@ void UScanDevicesCallback::Activate()
 	// Characteristic is optional, scan without filters if not present.
 	if (searchService.IsEmpty() && searchAddress.IsEmpty())
 	{
-		UBluetoothSupportBPLibrary::ScanBLEdevices(searchTimeout);
+		UBluetoothSupportBPLibrary::ScanBLEdevices(searchTimeout, scanReportDelay);
 	} 
 	else {
-		UBluetoothSupportBPLibrary::ScanByCharacteristic(searchTimeout, searchService, searchAddress);
+		UBluetoothSupportBPLibrary::ScanByCharacteristic(searchTimeout, scanReportDelay, searchService, searchAddress);
 	}
 	
 	// Call scan device start.
 }
 
-UScanDevicesCallback* UScanDevicesCallback::ScanNearbyDevices(int32 timeout, const FString& serviceUUID, const FString& deviceAddress)
+UScanDevicesCallback* UScanDevicesCallback::ScanNearbyDevices(int32 timeout, const FString& serviceUUID, const FString& deviceAddress, int64 scanReportDelay)
 {
 	UScanDevicesCallback* Proxy = NewObject<UScanDevicesCallback>();
 	Proxy->searchTimeout = timeout;
+	Proxy->scanReportDelay = scanReportDelay;
 	Proxy->searchService = FString(serviceUUID);
 	Proxy->searchAddress = FString(deviceAddress);
 	return Proxy;

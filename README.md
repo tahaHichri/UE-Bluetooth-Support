@@ -18,7 +18,8 @@ Before adding the plugin to your projects, please take these points into conside
     </ul></li>
 <li><a href="https://developer.android.com/guide/topics/connectivity/bluetooth-le#permissions">These permissions and capabilities</a> are required in the manifest file in order to be able to use Bluetooth LE on an Android device.
     <br />Don't worry, you can do that easily by following <u><a href="https://docs.unrealengine.com/en-us/Platforms/Android/AndroidManifestControl">this official guide</a></u></li>
-<li>Your app should request <b>ACCESS_COARSE_LOCATION</b> runtime permission in order to be able to discover other BLE devices.<br />Here is <a href="https://api.unrealengine.com/INT/BlueprintAPI/AndroidPermission/index.html">how to check/request granted permissions</a> at runtime on UE4.</li>
+<li>Your app should request <b>ACCESS_COARSE_LOCATION</b> & <b>ACCESS_FINE_LOCATION</b> runtime permission in order to be able to discover other BLE devices and for checking if Geolocation is turned on.<br />Here is <a href="https://api.unrealengine.com/INT/BlueprintAPI/AndroidPermission/index.html">how to check/request granted permissions</a> at runtime on UE4.</li>
+<li><b>Be sure that while scanning, the device has Geolocation enabled, otherwise you will not get any scan results.</b> In this plugin there is a special function that you can use to check if Geolocation is enabled.</li>
 </ol>
 
 

@@ -10,33 +10,14 @@
 #include "BluetoothSupportBPLibrary.h"
 #include "TaDispatcher.h"
 
-
 UBluetoothSupportBPLibrary::UBluetoothSupportBPLibrary(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {}
 
-bool UBluetoothSupportBPLibrary::IsBluetoothEnabled()
+bool UBluetoothSupportBPLibrary::IsBluetoothSupported()
 {
 #if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->IsEnabled();
-#endif
-	return false;
-}
-
-
-bool UBluetoothSupportBPLibrary::EnableBluetooth()
-{
-	#if PLATFORM_ANDROID
-		return TaDispatcher::Get().GetAndroidGatewayInterface()->EnableBluetoothAdapter();
-	#endif
-	return false;
-}
-
-
-bool UBluetoothSupportBPLibrary::DisableBluetooth()
-{
-#if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->DisableBluetoothAdapter();
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->IsBluetoothSupported();
 #endif
 	return false;
 }
@@ -48,6 +29,38 @@ void UBluetoothSupportBPLibrary::ShowAndroidToast(FString string)
 #endif
 }
 
+bool UBluetoothSupportBPLibrary::IsGeolocationEnabled()
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->IsGeolocationEnabled();
+#endif
+	return false;
+}
+
+bool UBluetoothSupportBPLibrary::IsBluetoothEnabled()
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->IsEnabled();
+#endif
+	return false;
+}
+
+bool UBluetoothSupportBPLibrary::EnableBluetooth()
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->EnableBluetoothAdapter();
+#endif
+	return false;
+}
+
+bool UBluetoothSupportBPLibrary::DisableBluetooth()
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->DisableBluetoothAdapter();
+#endif
+	return false;
+}
+
 bool UBluetoothSupportBPLibrary::IsLowEnergySupported()
 {
 #if PLATFORM_ANDROID
@@ -55,42 +68,6 @@ bool UBluetoothSupportBPLibrary::IsLowEnergySupported()
 #endif
 	return false;
 }
-
-bool UBluetoothSupportBPLibrary::IsBluetoothSupported()
-{
-#if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->IsBluetoothSupported();
-#endif
-	return false;
-}
-
-bool UBluetoothSupportBPLibrary::ScanBLEdevices(int32 scanTimeout)
-{
-#if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanBLEdevices( scanTimeout );
-#endif
-	return false;
-}
-
-
-bool UBluetoothSupportBPLibrary::ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress)
-{
-#if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanByCharacteristic(scanTimeout, serviceUUID, deviceAddress);
-#endif
-	return false;
-}
-
-
-
-void UBluetoothSupportBPLibrary::StopBluetoothScan()
-{
-#if PLATFORM_ANDROID
-	return TaDispatcher::Get().GetAndroidGatewayInterface()->StopScan();
-#endif
-}
-
-
 
 bool UBluetoothSupportBPLibrary::IsBluetoothScanning()
 {
@@ -100,6 +77,12 @@ bool UBluetoothSupportBPLibrary::IsBluetoothScanning()
 	return false;
 }
 
+void UBluetoothSupportBPLibrary::StopBluetoothScan()
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->StopScan();
+#endif
+}
 
 TArray<UBluetoothDevice*> UBluetoothSupportBPLibrary::GetDiscoveredDevices()
 {
@@ -109,10 +92,25 @@ TArray<UBluetoothDevice*> UBluetoothSupportBPLibrary::GetDiscoveredDevices()
 	return {};
 }
 
-
 void UBluetoothSupportBPLibrary::ClearDiscoveredDevicesList()
 {
 #if PLATFORM_ANDROID
 	TaDispatcher::Get().GetAndroidGatewayInterface()->ClearDiscoveredDevicesList();
 #endif
+}
+
+bool UBluetoothSupportBPLibrary::ScanBLEdevices(int32 scanTimeout, int64 scanReportDelay)
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanBLEdevices(scanTimeout, scanReportDelay);
+#endif
+	return false;
+}
+
+bool UBluetoothSupportBPLibrary::ScanByCharacteristic(int32 scanTimeout, int64 scanReportDelay, FString serviceUUID, FString deviceAddress)
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->ScanByCharacteristic(scanTimeout, scanReportDelay, serviceUUID, deviceAddress);
+#endif
+	return false;
 }

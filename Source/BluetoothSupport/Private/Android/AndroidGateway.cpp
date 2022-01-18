@@ -6,79 +6,32 @@
 * Copyright (c) 2018 hishri.com
 */
 
-
-
 #pragma once	
 #include "AndroidGateway.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
 
-jmethodID FAndroidGateway::IsBluetoothSupportedMethod;
-jmethodID FAndroidGateway::ShowAndroidToastMethod;
-
-jmethodID FAndroidGateway::IsEnabledMethod;
-
-jmethodID FAndroidGateway::EnableBluetoothAdapterMethod;
-jmethodID FAndroidGateway::DisableBluetoothAdapterMethod;
-jmethodID FAndroidGateway::IsBLESupportedMethod;
-jmethodID FAndroidGateway::IsScanningMethod;
-
-jmethodID FAndroidGateway::ScanBLEdevicesMethod;
-jmethodID FAndroidGateway::ScanByCharacteristicMethod;
-jmethodID FAndroidGateway::StopScanMethod;
-jmethodID FAndroidGateway::GetDiscoveredDevicesMethod;
-jmethodID FAndroidGateway::ClearDiscoveredDevicesListMethod;
-
-
-
 
 FAndroidGateway::FAndroidGateway()
 {
+	// Java signatures: http://www.rgagnon.com/javadetails/java-0286.html.
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
 		IsBluetoothSupportedMethod		= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothSupported", "()Z", false);
 		ShowAndroidToastMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "ShowToast", "(Ljava/lang/String;)V", false);
+		IsGeolocationEnabledMethod		= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isGeolocationEnabled", "()Z", false);
 
+		IsEnabledMethod					= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothEnabled", "()Z", false);
+		EnableBluetoothAdapterMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "enableBluetooth", "()V", false);
 		DisableBluetoothAdapterMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "disableBluetooth", "()V", false);
 		IsBLESupportedMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothLowEnergySupported", "()Z", false);
 		IsScanningMethod				= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isScanning", "()Z", false);
-		EnableBluetoothAdapterMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "enableBluetooth", "()V", false);
 
-		IsEnabledMethod						= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothEnabled", "()Z", false);
-		ScanBLEdevicesMethod				= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "startLEScan", "(I)V", false);
-		ScanByCharacteristicMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "startFilteredScan", "(ILjava/lang/String;Ljava/lang/String;)V", false);
-		StopScanMethod						= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "stopLEScan", "()V", false);
-		
-		
+		ScanBLEdevicesMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "startLEScan", "(IJ)V", false);
+		ScanByCharacteristicMethod		= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "startFilteredScan", "(IJLjava/lang/String;Ljava/lang/String;)V", false);
+		StopScanMethod					= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "stopLEScan", "()V", false);
 		GetDiscoveredDevicesMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "getDiscoveredDevices", "()[Ljava/lang/String;", false);
 		ClearDiscoveredDevicesListMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "clearDiscoveredDevices", "()V", false);
 	}
-}
-
-FAndroidGateway::~FAndroidGateway()
-{
-}
-
-void FAndroidGateway::ShowAndroidToast(FString toastString) 
-{
-	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
-	{
-		jstring JavaString = Env->NewStringUTF(TCHAR_TO_UTF8(*toastString));
-		if (!JavaString) {
-			UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from toastString"));
-		}
-		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ShowAndroidToastMethod, JavaString);
-		Env->DeleteLocalRef(JavaString);
-	}
-}
-
-bool FAndroidGateway::IsScanning()
-{
-	bool bResult = false;
-	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
-	{
-		bResult = FJavaWrapper::CallBooleanMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::IsScanningMethod);
-	}
-	return bResult;
 }
 
 bool FAndroidGateway::IsBluetoothSupported()
@@ -91,6 +44,64 @@ bool FAndroidGateway::IsBluetoothSupported()
 	return bResult;
 }
 
+void FAndroidGateway::ShowAndroidToast(FString toastString) 
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		jstring jstringMessageParam = Env->NewStringUTF(TCHAR_TO_UTF8(*toastString));
+		if (!jstringMessageParam) {
+			UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from toastString"));
+		}
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ShowAndroidToastMethod, jstringMessageParam);
+		Env->DeleteLocalRef(jstringMessageParam);
+	}
+}
+
+bool FAndroidGateway::IsGeolocationEnabled()
+{
+	bool bResult = false;
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		bResult = FJavaWrapper::CallBooleanMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::IsGeolocationEnabledMethod);
+	}
+	return bResult;
+}
+
+bool FAndroidGateway::IsEnabled()
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		return FJavaWrapper::CallBooleanMethod(Env,
+											   FJavaWrapper::GameActivityThis,
+											   FAndroidGateway::IsEnabledMethod);
+	}
+	return false;
+}
+
+bool FAndroidGateway::EnableBluetoothAdapter()
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		FJavaWrapper::CallVoidMethod(Env,
+									 FJavaWrapper::GameActivityThis,
+									 FAndroidGateway::EnableBluetoothAdapterMethod);
+		return true;
+	}
+	return false;
+}
+
+bool FAndroidGateway::DisableBluetoothAdapter()
+{
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		FJavaWrapper::CallVoidMethod(Env,
+									 FJavaWrapper::GameActivityThis,
+									 FAndroidGateway::DisableBluetoothAdapterMethod);
+		return true;
+	}
+	return false;
+}
+
 bool FAndroidGateway::IsBLESupported()
 {
 	bool bResult = false;
@@ -101,79 +112,52 @@ bool FAndroidGateway::IsBLESupported()
 	return bResult;
 }
 
+bool FAndroidGateway::IsScanning()
+{
+	bool bResult = false;
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		bResult = FJavaWrapper::CallBooleanMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::IsScanningMethod);
+	}
+	return bResult;
+}
 
-bool FAndroidGateway::EnableBluetoothAdapter()
+bool FAndroidGateway::ScanBLEdevices(int32 scanTimeout, int64 scanReportDelay)
 {
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
-		FJavaWrapper::CallVoidMethod(Env,
-			FJavaWrapper::GameActivityThis,
-			FAndroidGateway::EnableBluetoothAdapterMethod);
+		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ScanBLEdevicesMethod, (jint)scanTimeout, (jlong)scanReportDelay);
 		return true;
 	}
 	return false;
 }
 
-
-bool FAndroidGateway::DisableBluetoothAdapter()
+bool FAndroidGateway::ScanByCharacteristic(int32 scanTimeout, int64 scanReportDelay, FString serviceUUID, FString deviceAddr)
 {
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
-			FJavaWrapper::CallVoidMethod(Env,
-				FJavaWrapper::GameActivityThis,
-				FAndroidGateway::DisableBluetoothAdapterMethod);
-			return true;
-	}
-	return false;
-}
-
-
-bool FAndroidGateway::IsEnabled()
-{
-	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
-	{
-		return FJavaWrapper::CallBooleanMethod(Env,
-			FJavaWrapper::GameActivityThis,
-				FAndroidGateway::IsEnabledMethod);
-	}
-	return false;
-}
-
-
-bool FAndroidGateway::ScanBLEdevices(int32 scanTimeout)
-{
-	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
-	{
-		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ScanBLEdevicesMethod, (jvalue*)(jlong)scanTimeout);
-		return true;
-	}
-	return false;
-}
-
-
-
-bool FAndroidGateway::ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddr)
-{
-	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
-	{
-		jstring jStringParam = Env->NewStringUTF(TCHAR_TO_UTF8(*serviceUUID));
-
+		jstring jStringUUIDParam = Env->NewStringUTF(TCHAR_TO_UTF8(*serviceUUID));
 		jstring jStringAddrParam = Env->NewStringUTF(TCHAR_TO_UTF8(*deviceAddr));
 
-		if (!jStringParam || !jStringAddrParam)
+		if (!jStringUUIDParam || !jStringAddrParam)
 		{
 			UE_LOG(LogTemp, Fatal, TEXT("Could Not generate jstring from uuid or address string"));
 		}
 
-		FJavaWrapper::CallVoidMethod( Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ScanByCharacteristicMethod, scanTimeout, jStringParam, jStringAddrParam);
+		FJavaWrapper::CallVoidMethod(Env, 
+									 FJavaWrapper::GameActivityThis, 
+									 FAndroidGateway::ScanByCharacteristicMethod, 
+									 (jint)scanTimeout, 
+									 (jlong)scanReportDelay,
+									 jStringUUIDParam, 
+									 jStringAddrParam);
 		
-		Env->DeleteLocalRef(jStringParam);
+		Env->DeleteLocalRef(jStringUUIDParam);
 		Env->DeleteLocalRef(jStringAddrParam);
 		return true;
 	}
 	return false;
 }
-
 
 void FAndroidGateway::StopScan()
 {
@@ -183,22 +167,18 @@ void FAndroidGateway::StopScan()
 	}
 }
 
-
-
-
 TArray<UBluetoothDevice*> FAndroidGateway::GetDiscoveredDevices()
 {
 	TArray<UBluetoothDevice*> DiscoveredDevices;
 	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
 	{
-		jobjectArray BluetoothDevicesStrArr = (jobjectArray) Env->CallObjectMethod(FJavaWrapper::GameActivityThis, FAndroidGateway::GetDiscoveredDevicesMethod);
-		
+		jobjectArray BluetoothDevicesStrArr = (jobjectArray)Env->CallObjectMethod(FJavaWrapper::GameActivityThis, FAndroidGateway::GetDiscoveredDevicesMethod);
 		int BluetoothDevicesStrArrSize = Env->GetArrayLength(BluetoothDevicesStrArr);
 
 		// Splitting Devices info and creating a new Device object.
 		for (int i = 0; i < BluetoothDevicesStrArrSize; ++i)
 		{
-			jstring string = (jstring) Env->GetObjectArrayElement(BluetoothDevicesStrArr, i);
+			jstring string = (jstring)Env->GetObjectArrayElement(BluetoothDevicesStrArr, i);
 			
 			const char* mayarray = Env->GetStringUTFChars(string, 0);
 
@@ -210,13 +190,9 @@ TArray<UBluetoothDevice*> FAndroidGateway::GetDiscoveredDevices()
 			Env->ReleaseStringUTFChars(string, mayarray);
 			Env->DeleteLocalRef(string);
 		}
-
-		return DiscoveredDevices;
 	}
 	return DiscoveredDevices;
 }
-
-
 
 void FAndroidGateway::ClearDiscoveredDevicesList()
 {
@@ -225,7 +201,6 @@ void FAndroidGateway::ClearDiscoveredDevicesList()
 		FJavaWrapper::CallVoidMethod(Env, FJavaWrapper::GameActivityThis, FAndroidGateway::ClearDiscoveredDevicesListMethod);
 	}
 }
-
 
 
 /**

@@ -25,42 +25,37 @@ class FAndroidGateway : public IBluetoothOperationsInterface
 {
 public:
 	FAndroidGateway();
-	virtual ~FAndroidGateway();
+	virtual ~FAndroidGateway() {}
 
 	virtual bool IsBluetoothSupported()		override;
 	virtual void ShowAndroidToast(FString toastString)		override;
+	virtual bool IsGeolocationEnabled()		override;
 
 	virtual bool IsEnabled()				override;
-
 	virtual bool EnableBluetoothAdapter()	override;
 	virtual bool DisableBluetoothAdapter()  override;
 	virtual bool IsBLESupported()			override;
 	virtual bool IsScanning()				override;
 
-	virtual bool ScanBLEdevices(int32 scanTimeout)									     override;
-	virtual bool ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress)	 override;
-
+	virtual bool ScanBLEdevices(int32 scanTimeout, int64 scanReportDelay)													override;
+	virtual bool ScanByCharacteristic(int32 scanTimeout, int64 scanReportDelay, FString serviceUUID, FString deviceAddress)	override;
 	virtual void StopScan()					   override;
-
+	virtual TArray<UBluetoothDevice*> GetDiscoveredDevices()	override;
 	virtual void ClearDiscoveredDevicesList()  override;
 
-	virtual TArray<UBluetoothDevice*> GetDiscoveredDevices()	override;
+	jmethodID IsBluetoothSupportedMethod;
+	jmethodID ShowAndroidToastMethod;
+	jmethodID IsGeolocationEnabledMethod;
 
-	// JNI Methods
-	static jmethodID IsBluetoothSupportedMethod;
-	static jmethodID ShowAndroidToastMethod;
+	jmethodID IsEnabledMethod;
+	jmethodID EnableBluetoothAdapterMethod;
+	jmethodID DisableBluetoothAdapterMethod;
+	jmethodID IsBLESupportedMethod;
+	jmethodID IsScanningMethod;
 
-	static jmethodID IsEnabledMethod;
-
-	static jmethodID EnableBluetoothAdapterMethod;
-	static jmethodID DisableBluetoothAdapterMethod;
-	static jmethodID IsBLESupportedMethod;
-	static jmethodID IsScanningMethod;
-	static jmethodID ScanBLEdevicesMethod;
-	static jmethodID ScanByCharacteristicMethod;
-
-	static jmethodID StopScanMethod;
-
-	static jmethodID GetDiscoveredDevicesMethod;
-	static jmethodID ClearDiscoveredDevicesListMethod;
+	jmethodID ScanBLEdevicesMethod;
+	jmethodID ScanByCharacteristicMethod;
+	jmethodID StopScanMethod;
+	jmethodID GetDiscoveredDevicesMethod;
+	jmethodID ClearDiscoveredDevicesListMethod;
 };

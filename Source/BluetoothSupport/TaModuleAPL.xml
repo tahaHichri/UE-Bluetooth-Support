@@ -27,37 +27,32 @@
   <gameActivityImportAdditions>
     <insert>
     <!-- Inject imports here. -->
-        import android.content.pm.PackageManager;
-        import android.widget.Toast;
-        import android.bluetooth.BluetoothAdapter;
-        import android.bluetooth.BluetoothManager;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.os.Looper;
-        import android.os.Handler;
-        import android.os.Build;
-        import android.bluetooth.BluetoothDevice;
         import java.util.ArrayList;
         import java.util.Arrays;
-        import java.util.Collections;
         import java.util.Date;
         import java.util.List;
         import java.util.UUID;
-        import android.os.ParcelUuid;
-        import android.bluetooth.le.ScanFilter;
-        import android.bluetooth.le.ScanSettings;
+        import java.util.concurrent.Semaphore;
         import androidx.annotation.RequiresApi;
+        import android.content.pm.PackageManager;
+        import android.widget.Toast;
+        import android.content.Context;
+        import android.content.Intent;
+        import android.os.Handler;
+        import android.os.Build;
+        import android.os.ParcelUuid;
+        import android.location.LocationManager;
+        import android.bluetooth.BluetoothDevice;
+        import android.bluetooth.BluetoothAdapter;
+        import android.bluetooth.BluetoothManager;
         import android.bluetooth.BluetoothGatt;
         import android.bluetooth.BluetoothGattCallback;
         import android.bluetooth.BluetoothGattService;
-        import android.bluetooth.BluetoothProfile;
+        import android.bluetooth.le.ScanFilter;
+        import android.bluetooth.le.ScanSettings;
         import android.bluetooth.le.BluetoothLeScanner;
         import android.bluetooth.le.ScanCallback;
         import android.bluetooth.le.ScanResult;
-        import android.os.HandlerThread;
-        import java.util.concurrent.Semaphore;
-
-        import android.os.Bundle;
     </insert>
   </gameActivityImportAdditions>
 
@@ -69,6 +64,7 @@
     <!-- Required solely for BLE, Bluetooth can be used for location, get coarse location. -->
     <addPermission android:name="android.permission.BLUETOOTH_ADMIN" />
     <addPermission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <addPermission android:name="android.permission.ACCESS_FINE_LOCATION" />
     
     <!-- Normally the low-energy feature is required, However, I am going to enable some features for devices
     which do not support BLE, such as manipulating the adapter and getting BL status. -->
@@ -96,12 +92,6 @@
         // Nearby device discovery, connection, characteristic reading (API level 21).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-            // Builder will create a new ScanSettings instance with mentioned parameters.
-            scanSettings = new ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
-            .setReportDelay(1000)
-            .build();
-            
             discoveredLEResults = new ArrayList<>();  
         }
     ]]>
@@ -111,9 +101,8 @@
   <!-- Optional additions to GameActivity onDestroy in GameActivity.java. -->
   <gameActivityOnDestroyAdditions>
     <insert><![CDATA[
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && isScanning) {
-            stopLEScan();
-        }
+        // We use 0 as token for all runnables that will be put into Handler.
+        mHandler.removeCallbacksAndMessages(0);
         mHandler = null;
     ]]>
     </insert>
@@ -158,8 +147,8 @@
         private BluetoothLeScanner taBluetoothLeScanner;
         // See onCreate additions (where the variables was initialized with empty array). 
         private List<CBluetoothDevice> discoveredLEResults;
-        // See onCreate additions. Will be set only when API is >= 21.
-        private ScanSettings scanSettings;
+        // Use this instance to stop scanning.
+        private ScanStopper scanStopper = new ScanStopper();
 
         // Intial scan for LE devices with, or without filters.
         // Will be initialized in startLEScan() and set to null in stopLEScan().
@@ -200,6 +189,22 @@
                     Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
                 }
             });
+        }
+
+        /**
+        * If the geolocation is turned on.
+        */
+        public boolean isGeolocationEnabled() {
+            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            boolean gps_enabled = false;
+
+            try {
+                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            } catch(IllegalArgumentException e) {
+                // Ignore.
+            }
+
+            return gps_enabled;
         }
 
         /**
@@ -257,8 +262,10 @@
         * Scan for ANY LE-enabled device within the Bluetooth covered range.
         */
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        public void startLEScan (int scanTimeoutMillisecond)
+        public void startLEScan (int scanTimeoutMillisecond, long scanReportDelay)
         {
+            // Stop countdown immidiately.
+            mHandler.removeCallbacks(scanStopper, 0);
             // Prevent user from calling scan multiple times.
             if( isScanning ) stopLEScan();
             
@@ -273,15 +280,13 @@
             isScanning = true;
 
             taBluetoothLeScanner.startScan(null,
-                    scanSettings,
+                    (new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+                    .setReportDelay(scanReportDelay)
+                    .build()),
                     mScanCallback);
-
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    stopLEScan();
-                }
-            }, scanTimeoutMillisecond);
+            
+            mHandler.postDelayed(scanStopper, 0, scanTimeoutMillisecond);
         }
 
         /**
@@ -293,8 +298,9 @@
         *                               The loop is better be managed BP-side.
         */
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-        public void startFilteredScan (int scanTimeoutMillisecond, final String uuidStr, final String deviceAddr)
+        public void startFilteredScan (int scanTimeoutMillisecond, long scanReportDelay, final String uuidStr, final String deviceAddr)
         {
+            mHandler.removeCallbacks(scanStopper, 0);
             // Prevent user from calling scan multiple times.
             if( isScanning ) stopLEScan();
 
@@ -336,22 +342,23 @@
             taBluetoothLeScanner = taBluetoothAdapter.getBluetoothLeScanner();
 
             taBluetoothLeScanner.startScan(Arrays.asList(scanFilter),
-                    scanSettings,
+                    (new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+                    .setReportDelay(scanReportDelay)
+                    .build()),
                     mScanCallback);
 
             isScanning = true;
 
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    stopLEScan();
-                }
-            }, scanTimeoutMillisecond);
+            mHandler.postDelayed(scanStopper, 0, scanTimeoutMillisecond);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         public void stopLEScan()
         {
+            // Stop countdown immidiately.
+            mHandler.removeCallbacks(scanStopper, 0);
+
             if (isScanning && isBluetoothEnabled() && taBluetoothLeScanner != null)
             {
                 taBluetoothLeScanner.stopScan(mScanCallback);
@@ -381,7 +388,6 @@
                 // Delaying results of scan and getting a batch of results instead of a callback fuss.
                 // This callback will never be called with delay.
                 addScanResult(result);
-                // I put the function here for future features.
             }
 
             @Override
@@ -416,6 +422,15 @@
             }
         }
 
+        /** Class for stopping scanning process.
+        */
+        private class ScanStopper implements Runnable {
+            @Override
+            public void run()
+            {
+                stopLEScan();
+            }
+        }
 
         /**
         * ############################### SCAN, CONNECTION CALLBACKS ########################

@@ -20,6 +20,7 @@ class IBluetoothOperationsInterface
 public:
 	virtual bool IsBluetoothSupported() = 0;
 	virtual void ShowAndroidToast(FString toastString) = 0;
+	virtual bool IsGeolocationEnabled() = 0;
 
 	virtual bool IsEnabled() = 0;
 	virtual bool EnableBluetoothAdapter() = 0;
@@ -27,8 +28,8 @@ public:
 	virtual bool IsBLESupported() =	0;
 	virtual bool IsScanning() = 0;
 
-	virtual bool ScanBLEdevices(int32 scanTimeout) = 0;
-	virtual bool ScanByCharacteristic(int32 scanTimeout, FString characteristicUUID, FString addr) = 0;
+	virtual bool ScanBLEdevices(int32 scanTimeout, int64 scanReportDelay) = 0;
+	virtual bool ScanByCharacteristic(int32 scanTimeout, int64 scanReportDelay, FString characteristicUUID, FString addr) = 0;
 	virtual void StopScan() = 0;
 	virtual TArray<UBluetoothDevice*> GetDiscoveredDevices() = 0;
 	virtual void ClearDiscoveredDevicesList() = 0;

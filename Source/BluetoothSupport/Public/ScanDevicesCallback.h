@@ -14,9 +14,10 @@ class  UScanDevicesCallback : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
+	int32 searchTimeout;
+	int64 scanReportDelay;
 	FString searchService;
 	FString searchAddress;
-	int32 searchTimeout;
 
 	FDeviceScanSucceedCompleteDelegate SucceedDelegate;
 	FDelegateHandle SucceedDelegateHandle;
@@ -34,7 +35,7 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "Scan Nearby Bluetooth Devices", ToolTip = "Discover all nearby broadcasting devices", 
 		BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "Bluetooth Support Plugin")
-	static UScanDevicesCallback* ScanNearbyDevices(int32 timeout, const FString& serviceUUID, const FString& deviceAddress);
+	static UScanDevicesCallback* ScanNearbyDevices(int32 timeout, const FString& serviceUUID, const FString& deviceAddress, int64 scanReportDelay = 5000);
 
 	virtual void Activate() override;
 };

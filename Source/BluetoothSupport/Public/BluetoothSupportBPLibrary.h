@@ -18,6 +18,17 @@ class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_UCLASS_BODY()
 
+
+
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
+	static bool IsBluetoothSupported();
+
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static void ShowAndroidToast(FString toastString);
+
+	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
+	static bool IsGeolocationEnabled();
+
 	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
 	static bool IsBluetoothEnabled();
 
@@ -31,16 +42,10 @@ class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 	static bool IsLowEnergySupported();
 
 	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
-	static bool IsBluetoothSupported();
-
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
-	static void ShowAndroidToast(FString toastString);
+	static bool IsBluetoothScanning();
 
 	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 	static void StopBluetoothScan();
-
-	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
-	static bool IsBluetoothScanning();
 
 	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 	static TArray<UBluetoothDevice*> GetDiscoveredDevices();
@@ -50,7 +55,7 @@ class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 
 	/** These functions are for c++ only: */
 
-	static bool ScanBLEdevices(int32 scanTimeout);
+	static bool ScanBLEdevices(int32 scanTimeout, int64 scanReportDelay);
 	
-	static bool ScanByCharacteristic(int32 scanTimeout, FString serviceUUID, FString deviceAddress);
+	static bool ScanByCharacteristic(int32 scanTimeout, int64 scanReportDelay, FString serviceUUID, FString deviceAddress);
 };
