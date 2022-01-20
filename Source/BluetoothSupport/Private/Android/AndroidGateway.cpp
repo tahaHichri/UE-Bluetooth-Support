@@ -23,6 +23,7 @@ FAndroidGateway::FAndroidGateway()
 		IsEnabledMethod					= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothEnabled", "()Z", false);
 		EnableBluetoothAdapterMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "enableBluetooth", "()V", false);
 		DisableBluetoothAdapterMethod	= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "disableBluetooth", "()V", false);
+		GetBoundedDevicesMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "getBluetoothBoundedDevices", "()[Ljava/lang/String;", false);
 		IsBLESupportedMethod			= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isBluetoothLowEnergySupported", "()Z", false);
 		IsScanningMethod				= FJavaWrapper::FindMethod(Env, FJavaWrapper::GameActivityClassID, "isScanning", "()Z", false);
 
@@ -100,6 +101,33 @@ bool FAndroidGateway::DisableBluetoothAdapter()
 		return true;
 	}
 	return false;
+}
+
+TArray<UBluetoothDevice*> FAndroidGateway::GetBoundedDevices()
+{
+	TArray<UBluetoothDevice*> BoundedDevices;
+	if (JNIEnv* Env = FAndroidApplication::GetJavaEnv())
+	{
+		jobjectArray BluetoothDevicesStrArr = (jobjectArray)Env->CallObjectMethod(FJavaWrapper::GameActivityThis, FAndroidGateway::GetBoundedDevicesMethod);
+		int BluetoothDevicesStrArrSize = Env->GetArrayLength(BluetoothDevicesStrArr);
+
+		// Splitting Devices info and creating a new Device object.
+		for (int i = 0; i < BluetoothDevicesStrArrSize; ++i)
+		{
+			jstring string = (jstring)Env->GetObjectArrayElement(BluetoothDevicesStrArr, i);
+			
+			const char* mayarray = Env->GetStringUTFChars(string, 0);
+
+			UBluetoothDevice* Ubd = NewObject<UBluetoothDevice>();
+			Ubd->InitDevice(UTF8_TO_TCHAR(mayarray), false);
+
+			BoundedDevices.Add(Ubd);
+
+			Env->ReleaseStringUTFChars(string, mayarray);
+			Env->DeleteLocalRef(string);
+		}
+	}
+	return BoundedDevices;
 }
 
 bool FAndroidGateway::IsBLESupported()
@@ -183,7 +211,7 @@ TArray<UBluetoothDevice*> FAndroidGateway::GetDiscoveredDevices()
 			const char* mayarray = Env->GetStringUTFChars(string, 0);
 
 			UBluetoothDevice* Ubd = NewObject<UBluetoothDevice>();
-			Ubd->InitDevice(UTF8_TO_TCHAR(mayarray));
+			Ubd->InitDevice(UTF8_TO_TCHAR(mayarray), true);
 
 			DiscoveredDevices.Add(Ubd);
 
@@ -202,20 +230,16 @@ void FAndroidGateway::ClearDiscoveredDevicesList()
 	}
 }
 
-
-/**
-** Callback from JAVA activity class.
-*/
-static void TriggerScanDeviceCallback(UBluetoothDevice* Ubd)
-{
-	FBluetoothSupportModule * Module = FModuleManager::Get().LoadModulePtr<FBluetoothSupportModule>("BluetoothSupport");
-	if (Module != nullptr)
-	{
-		Module->TriggerDeviceScanSucceedCompleteDelegates(Ubd);
-
-		Module = NULL;
+/** See native java functions implementation (where we use this macro)...
+ */
+#define CALL_BLSUPPORTMODULE_METHOD(FunctionAndArguments) \
+	FBluetoothSupportModule * Module = FModuleManager::Get().LoadModulePtr<FBluetoothSupportModule>("BluetoothSupport"); \
+	if (Module != nullptr) \
+	{ \
+		Module->FunctionAndArguments; \
+		Module = NULL; \
 	}
-}
+
 
 static FCriticalSection ReceiversLock;
 
@@ -227,12 +251,17 @@ extern "C"
 		const char* charsId = jni->GetStringUTFChars(code, 0);
 
 		UBluetoothDevice* Ubd = NewObject<UBluetoothDevice>();
-		Ubd->InitDevice(FString(UTF8_TO_TCHAR(charsId)));
+		Ubd->InitDevice(FString(UTF8_TO_TCHAR(charsId)), true);
 
-		TriggerScanDeviceCallback(Ubd);
+		CALL_BLSUPPORTMODULE_METHOD(TriggerDeviceScanSucceedCompleteDelegates(Ubd));
 
 		jni->ReleaseStringUTFChars(code, charsId);
 		ReceiversLock.Unlock();
+	}
+
+	JNIEXPORT void Java_com_epicgames_ue4_GameActivity_scanNativeFinishedCallback(JNIEnv * jni, jclass clazz)
+	{
+		CALL_BLSUPPORTMODULE_METHOD(TriggerDeviceScanFinishDelegates());
 	}
 
 	JNIEXPORT void Java_com_epicgames_ue4_GameActivity_printDebugUEMessage(JNIEnv * jni, jclass clazz, jstring message)

@@ -38,6 +38,14 @@ Before adding the plugin to your projects, please take these points into conside
 There is no better way to understand how to integrate the use this plugin than seeing it in action!<br />
 You can go ahead and clone <a href="https://github.com/tahaHichri/UE4-Bluetooth-Support-DEMO">this demo project</a>. After opeining it on your UE4, you can naviguate to the project settings and take a look at the Blueprints to learn how to call the different functionnalities.
 
+### What to dp to make it work properly?
+
+Basicly, the process is simple.
+<ol>
+<li>Check runtime permissions. If user denyed then you can make sad face :(</li>
+<li>Check that the device supports BLE, that bluetooth & geolocations are enabled. Otherwise ask user to enable geo, also you are able to enable bluetooth yourself via this plugin API.</li>
+<li>Do your work - run scan, obtain discovered devices.</li>
+</ol>
 
 ## Change log
 Milestones on the "Release" channel of this repository.

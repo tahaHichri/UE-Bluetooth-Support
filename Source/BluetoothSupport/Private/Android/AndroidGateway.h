@@ -34,6 +34,7 @@ public:
 	virtual bool IsEnabled()				override;
 	virtual bool EnableBluetoothAdapter()	override;
 	virtual bool DisableBluetoothAdapter()  override;
+	virtual TArray<UBluetoothDevice*> GetBoundedDevices() override;
 	virtual bool IsBLESupported()			override;
 	virtual bool IsScanning()				override;
 
@@ -50,6 +51,7 @@ public:
 	jmethodID IsEnabledMethod;
 	jmethodID EnableBluetoothAdapterMethod;
 	jmethodID DisableBluetoothAdapterMethod;
+	jmethodID GetBoundedDevicesMethod;
 	jmethodID IsBLESupportedMethod;
 	jmethodID IsScanningMethod;
 

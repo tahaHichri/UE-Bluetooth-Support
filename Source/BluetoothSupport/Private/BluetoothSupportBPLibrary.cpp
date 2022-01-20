@@ -61,6 +61,14 @@ bool UBluetoothSupportBPLibrary::DisableBluetooth()
 	return false;
 }
 
+TArray<UBluetoothDevice*> UBluetoothSupportBPLibrary::GetBoundedDevices()
+{
+#if PLATFORM_ANDROID
+	return TaDispatcher::Get().GetAndroidGatewayInterface()->GetBoundedDevices();
+#endif
+	return {};
+}
+
 bool UBluetoothSupportBPLibrary::IsLowEnergySupported()
 {
 #if PLATFORM_ANDROID

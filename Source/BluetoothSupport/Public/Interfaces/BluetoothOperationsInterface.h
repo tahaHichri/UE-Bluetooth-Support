@@ -25,6 +25,7 @@ public:
 	virtual bool IsEnabled() = 0;
 	virtual bool EnableBluetoothAdapter() = 0;
 	virtual bool DisableBluetoothAdapter() = 0;
+	virtual TArray<UBluetoothDevice*> GetBoundedDevices() = 0;
 	virtual bool IsBLESupported() =	0;
 	virtual bool IsScanning() = 0;
 

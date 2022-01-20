@@ -38,6 +38,9 @@ class UBluetoothSupportBPLibrary : public UBlueprintFunctionLibrary
 	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
 	static bool DisableBluetooth();
 
+	UFUNCTION(BlueprintCallable, Category = "Bluetooth Support Plugin")
+	static TArray<UBluetoothDevice*> GetBoundedDevices();
+
 	UFUNCTION(BlueprintPure, Category = "Bluetooth Support Plugin")
 	static bool IsLowEnergySupported();
 
