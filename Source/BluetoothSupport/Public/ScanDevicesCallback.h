@@ -15,11 +15,6 @@ class  UScanDevicesCallback : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 
-	/** 
-	 * This allows us to call multiple nodes.
-	 */
-	static TArray<UScanDevicesCallback*> instances;
-
 	int32 searchTimeout;
 	int64 scanReportDelay;
 	FString searchService;

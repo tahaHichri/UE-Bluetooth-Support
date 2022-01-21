@@ -161,7 +161,7 @@
         private Handler mHandler = new Handler();
 
         // Semaphore used for access discoveredLEResults.
-        private final Semaphore LEResultsAccessSemaphore = new Semaphore(1);
+        private final Semaphore LEResultsAccessSemaphore = new Semaphore(1, true);
 
 
         // Callback c++.

@@ -9,7 +9,7 @@
 #pragma once	
 #include "AndroidGateway.h"
 #include "Runtime/Engine/Classes/Kismet/KismetSystemLibrary.h"
-
+#include "Async.h"
 
 FAndroidGateway::FAndroidGateway()
 {
